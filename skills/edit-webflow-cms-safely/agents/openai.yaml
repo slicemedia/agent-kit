@@ -1,0 +1,15 @@
+interface:
+  display_name: "Edit Webflow CMS Safely"
+  short_description: "Plan and verify safe Webflow CMS edits"
+  default_prompt: "Use $edit-webflow-cms-safely to inspect and plan a Webflow CMS change."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

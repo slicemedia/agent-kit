@@ -1,0 +1,15 @@
+interface:
+  display_name: "Edit Webflow Designer Safely"
+  short_description: "Plan and verify bounded Designer edits"
+  default_prompt: "Use $edit-webflow-designer-safely to inspect, plan, and safely apply a bounded Webflow Designer change."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

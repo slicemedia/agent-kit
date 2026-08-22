@@ -1,0 +1,15 @@
+interface:
+  display_name: "Publish Webflow Staging"
+  short_description: "Publish only to Webflow staging safely"
+  default_prompt: "Use $publish-webflow-staging to plan and verify a staging-only publish."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

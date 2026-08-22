@@ -1,0 +1,12 @@
+interface:
+  display_name: "Inspect Webflow Site"
+  short_description: "Inspect Webflow structure before changes"
+  default_prompt: "Use $inspect-webflow-site to inspect a Webflow page or component before recommending changes."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

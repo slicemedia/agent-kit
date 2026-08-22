@@ -1,0 +1,15 @@
+interface:
+  display_name: "Manage Webflow Custom Code"
+  short_description: "Plan and apply Webflow scripts safely"
+  default_prompt: "Use $manage-webflow-custom-code to plan a safe custom-code script change."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

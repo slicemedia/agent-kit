@@ -1,0 +1,85 @@
+{
+  "name": "@slicemedia/agent-kit",
+  "version": "0.1.0",
+  "description": "AI instruction adapters and focused Webflow development skills from Slice Media.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "author": "Slice Media",
+  "files": [
+    ".codex-plugin",
+    "content",
+    "dist",
+    "skills",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "slicemedia-agent-kit": "./dist/bin.js"
+  },
+  "scripts": {
+    "build": "node scripts/prepare-build.mjs && tsc -p tsconfig.json",
+    "changeset": "changeset",
+    "check": "pnpm version:check && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm validate:package && pnpm pack:check && pnpm sanitize",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "pack:check": "node scripts/check-pack.mjs",
+    "release:pack-next": "node scripts/publish-next.mjs pack",
+    "release:publish:check": "node scripts/assert-publish-next-safe.mjs",
+    "release:verify-next": "node scripts/publish-next.mjs verify",
+    "release:prepare:check": "pnpm version:check && node scripts/assert-release-preparation-safe.mjs",
+    "sanitize": "node scripts/sanitize.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "validate:package": "node scripts/validate-package.mjs",
+    "version-packages": "changeset version && node scripts/sync-plugin-version.mjs && pnpm install --lockfile-only && pnpm version:check",
+    "version:check": "node scripts/check-version.mjs"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.1",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.1",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10",
+    "yaml": "2.9.0"
+  },
+  "engines": {
+    "node": ">=22.13 <23 || >=24 <25"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slicemedia/agent-kit.git"
+  },
+  "homepage": "https://github.com/slicemedia/agent-kit#readme",
+  "bugs": {
+    "url": "https://github.com/slicemedia/agent-kit/issues"
+  },
+  "keywords": [
+    "slicemedia",
+    "webflow",
+    "ai",
+    "agents",
+    "codex",
+    "claude",
+    "cursor",
+    "copilot"
+  ]
+}

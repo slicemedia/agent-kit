@@ -1,0 +1,4 @@
+interface:
+  display_name: "Configure Webflow Forms"
+  short_description: "Build progressive Webflow form enhancements"
+  default_prompt: "Use $configure-webflow-forms to design a safe Webflow form enhancement."

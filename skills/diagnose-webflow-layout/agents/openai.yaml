@@ -1,0 +1,12 @@
+interface:
+  display_name: "Diagnose Webflow Layout"
+  short_description: "Find and fix native Webflow layout issues"
+  default_prompt: "Use $diagnose-webflow-layout to diagnose this responsive Webflow layout and propose the narrowest native fix."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

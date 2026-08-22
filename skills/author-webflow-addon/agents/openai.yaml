@@ -1,0 +1,4 @@
+interface:
+  display_name: "Author Webflow Addon"
+  short_description: "Build reusable Webflow behavior safely"
+  default_prompt: "Use $author-webflow-addon to design and implement a reusable Webflow addon."

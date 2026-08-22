@@ -1,0 +1,12 @@
+interface:
+  display_name: "Build Webflow Motion"
+  short_description: "Choose and build maintainable Webflow motion"
+  default_prompt: "Use $build-webflow-motion to choose the right motion layer and plan this Webflow animation."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

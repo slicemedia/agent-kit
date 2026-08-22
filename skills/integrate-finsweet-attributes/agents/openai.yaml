@@ -1,0 +1,12 @@
+interface:
+  display_name: "Integrate Finsweet Attributes"
+  short_description: "Integrate Finsweet Attributes safely in Webflow"
+  default_prompt: "Use $integrate-finsweet-attributes to plan a safe Finsweet Attributes integration for this Webflow site."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

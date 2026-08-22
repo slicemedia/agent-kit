@@ -1,0 +1,12 @@
+interface:
+  display_name: "Debug Webflow Enhancement"
+  short_description: "Diagnose Webflow browser enhancements"
+  default_prompt: "Use $debug-webflow-enhancement to diagnose a Webflow enhancement without changing remote state."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

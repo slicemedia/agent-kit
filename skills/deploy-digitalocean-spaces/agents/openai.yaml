@@ -1,0 +1,7 @@
+interface:
+  display_name: "Deploy DigitalOcean Spaces"
+  short_description: "Plan version-preserving Spaces deployment"
+  default_prompt: "Use $deploy-digitalocean-spaces to prepare and review a content-addressed, version-preserving DigitalOcean Spaces deployment plan."
+
+policy:
+  allow_implicit_invocation: false

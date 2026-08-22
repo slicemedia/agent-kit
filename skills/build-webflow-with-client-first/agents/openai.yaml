@@ -1,0 +1,12 @@
+interface:
+  display_name: "Build Webflow with Client-First"
+  short_description: "Build maintainable Client-First Webflow layouts"
+  default_prompt: "Use $build-webflow-with-client-first to plan and build this Webflow page with the project’s confirmed Client-First conventions."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

@@ -1,0 +1,15 @@
+interface:
+  display_name: "Migrate Content to Webflow CMS"
+  short_description: "Plan and execute safe Webflow CMS migrations"
+  default_prompt: "Use $migrate-content-to-webflow-cms to plan a draft-first content migration into Webflow CMS."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,12 @@
+{
+  "name": "Official Webflow Agent Skills",
+  "webflowMcpVersion": "2.0.1",
+  "repository": "https://github.com/webflow/webflow-skills",
+  "commit": "b4e1fac15f65f60b60385ccd4f13740ae024665c",
+  "license": "MIT",
+  "licenseFile": "LICENSE",
+  "licenseSha256": "5e984c9c338a0fbe7da787f906c066d7aad0bae5b3b12eb33a26d770ba859b28",
+  "verifiedOn": "2026-08-12",
+  "vendored": false,
+  "installation": "Install selected skills directly from the pinned upstream commit after review; do not vendor or rebrand them."
+}

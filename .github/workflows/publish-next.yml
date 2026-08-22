@@ -1,0 +1,224 @@
+name: Publish npm prerelease
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_commit:
+        description: Full 40-character main commit to publish
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: agent-kit-npm-next
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'slicemedia/agent-kit' && github.event.repository.private == false && github.ref == 'refs/heads/main' && vars.SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: release-sanitize
+    permissions:
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.release_commit }}
+      - run: set -euo pipefail; [[ "${SLICEMEDIA_RELEASE_COMMIT}" =~ ^[0-9a-f]{40}$ ]]; test "${SLICEMEDIA_RELEASE_COMMIT}" = "${SLICEMEDIA_WORKFLOW_COMMIT}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"; test -z "${NODE_AUTH_TOKEN:-}"; test -z "${NPM_TOKEN:-}"; test -z "${YARN_NPM_AUTH_TOKEN:-}"; test -z "${NPM_CONFIG_TOKEN:-}"; test -z "${npm_config_token:-}"; test -z "${NPM_CONFIG_REGISTRY:-}"; test -z "${npm_config_registry:-}"; test -z "${NPM_CONFIG_USERCONFIG:-}"; test -z "${npm_config_userconfig:-}"; test -z "${PNPM_CONFIG_REGISTRY:-}"; test -z "${YARN_NPM_REGISTRY_SERVER:-}"; test -z "${COREPACK_NPM_REGISTRY:-}"; head_commit="$(git rev-parse --verify 'HEAD^{commit}')"; origin_url="$(git remote get-url origin)"; case "${origin_url}" in https://github.com/slicemedia/agent-kit|https://github.com/slicemedia/agent-kit.git) ;; *) exit 1 ;; esac; remote_line="$(git ls-remote --exit-code origin refs/heads/main)"; live_main="${remote_line%%[[:space:]]*}"; live_ref="${remote_line#*$'\t'}"; test "${head_commit}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_main}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_ref}" = refs/heads/main; test -z "$(git status --porcelain=v1 --untracked-files=all)"
+        shell: bash
+        env:
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+          SLICEMEDIA_WORKFLOW_COMMIT: ${{ github.sha }}
+      - uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          version: 11.21.0
+          runtime: node@24
+          cache: true
+          install: false
+      - run: npm install --global npm@11.19.0 --ignore-scripts --registry=https://registry.npmjs.org/ --userconfig=/dev/null
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm release:publish:check
+        env:
+          GITHUB_REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+          SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED: ${{ vars.SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED }}
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+      - run: pnpm check
+      - run: pnpm sanitize
+        env:
+          SLICEMEDIA_FORBIDDEN_TERMS: ${{ secrets.SLICEMEDIA_FORBIDDEN_TERMS }}
+          SLICEMEDIA_REQUIRE_FORBIDDEN_TERMS: "true"
+      - run: set -euo pipefail; [[ "${SLICEMEDIA_RELEASE_COMMIT}" =~ ^[0-9a-f]{40}$ ]]; test "${SLICEMEDIA_RELEASE_COMMIT}" = "${SLICEMEDIA_WORKFLOW_COMMIT}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"; test -z "${NODE_AUTH_TOKEN:-}"; test -z "${NPM_TOKEN:-}"; test -z "${YARN_NPM_AUTH_TOKEN:-}"; test -z "${NPM_CONFIG_TOKEN:-}"; test -z "${npm_config_token:-}"; test -z "${NPM_CONFIG_REGISTRY:-}"; test -z "${npm_config_registry:-}"; test -z "${NPM_CONFIG_USERCONFIG:-}"; test -z "${npm_config_userconfig:-}"; test -z "${PNPM_CONFIG_REGISTRY:-}"; test -z "${YARN_NPM_REGISTRY_SERVER:-}"; test -z "${COREPACK_NPM_REGISTRY:-}"; head_commit="$(git rev-parse --verify 'HEAD^{commit}')"; origin_url="$(git remote get-url origin)"; case "${origin_url}" in https://github.com/slicemedia/agent-kit|https://github.com/slicemedia/agent-kit.git) ;; *) exit 1 ;; esac; remote_line="$(git ls-remote --exit-code origin refs/heads/main)"; live_main="${remote_line%%[[:space:]]*}"; live_ref="${remote_line#*$'\t'}"; test "${head_commit}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_main}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_ref}" = refs/heads/main; test -z "$(git status --porcelain=v1 --untracked-files=all)"
+        shell: bash
+        env:
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+          SLICEMEDIA_WORKFLOW_COMMIT: ${{ github.sha }}
+      - run: pnpm release:pack-next
+        env:
+          GITHUB_REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+          SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED: ${{ vars.SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED }}
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+          SLICEMEDIA_RELEASE_DIRECTORY: ${{ runner.temp }}/slicemedia-agent-kit-next
+      - id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: agent-kit-next-candidate
+          path: |
+            ${{ runner.temp }}/slicemedia-agent-kit-next/agent-kit.tgz
+            ${{ runner.temp }}/slicemedia-agent-kit-next/candidate.json
+            ${{ runner.temp }}/slicemedia-agent-kit-next/npm-cli.tgz
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+          overwrite: false
+
+  publish:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: npm-next
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.15.0
+          check-latest: false
+          package-manager-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.artifact-id }}
+          path: ${{ runner.temp }}/slicemedia-agent-kit-next
+      - name: Publish the exact prepared archive
+        shell: bash
+        env:
+          SLICEMEDIA_ARTIFACT_DIGEST: ${{ needs.prepare.outputs.artifact-digest }}
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+          SLICEMEDIA_RELEASE_DIRECTORY: ${{ runner.temp }}/slicemedia-agent-kit-next
+          SLICEMEDIA_WORKFLOW_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { execFileSync } from "node:child_process";
+          import { createHash } from "node:crypto";
+          import { lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
+          import { basename, dirname, join } from "node:path";
+
+          const registry = "https://registry.npmjs.org/";
+          const expectedNpmIntegrity = "sha512-SDd/hHg3KqHE5Ht2NHWxNYNtqCQ2pXAPLl6OtQhPyED5PHsRfrOtO199MZTIG2cQoQ1ZRI9t28shrD+2cr3AAw==";
+          const releaseCommit = process.env.SLICEMEDIA_RELEASE_COMMIT ?? "";
+          const workflowCommit = process.env.SLICEMEDIA_WORKFLOW_COMMIT ?? "";
+          if (!/^[0-9a-f]{40}$/.test(releaseCommit) || releaseCommit !== workflowCommit) throw new Error("The approved release commit is invalid.");
+          if (!/^sha256:[0-9a-f]{64}$/.test(process.env.SLICEMEDIA_ARTIFACT_DIGEST ?? "")) throw new Error("The candidate artifact digest is missing.");
+          for (const [key, value] of Object.entries(process.env)) {
+            const normalized = key.toUpperCase();
+            if (typeof value === "string" && value.trim() !== "" && (normalized === "NODE_AUTH_TOKEN" || normalized === "NPM_TOKEN" || normalized === "YARN_NPM_AUTH_TOKEN" || normalized === "NPM_CONFIG_REGISTRY" || normalized === "NPM_CONFIG_USERCONFIG" || normalized === "PNPM_CONFIG_REGISTRY" || normalized === "YARN_NPM_REGISTRY_SERVER" || normalized === "COREPACK_NPM_REGISTRY" || normalized === "SLICEMEDIA_FORBIDDEN_TERMS" || normalized === "SLICEMEDIA_REQUIRE_FORBIDDEN_TERMS" || (/^NPM_CONFIG_/.test(normalized) && /AUTH|TOKEN/.test(normalized)))) throw new Error("The publisher environment contains a prohibited override.");
+          }
+
+          const parent = realpathSync(process.env.RUNNER_TEMP ?? "");
+          const directory = realpathSync(process.env.SLICEMEDIA_RELEASE_DIRECTORY ?? "");
+          if (directory !== join(parent, "slicemedia-agent-kit-next") || dirname(directory) !== parent) throw new Error("The candidate directory is invalid.");
+          const files = readdirSync(directory).sort();
+          if (JSON.stringify(files) !== JSON.stringify(["agent-kit.tgz", "candidate.json", "npm-cli.tgz"])) throw new Error("The candidate artifact contains unexpected files.");
+          for (const file of files) {
+            const path = join(directory, file);
+            const entry = lstatSync(path);
+            if (!entry.isFile() || entry.isSymbolicLink() || entry.nlink !== 1 || dirname(realpathSync(path)) !== directory) throw new Error("A candidate artifact file is unsafe.");
+          }
+
+          const receipt = JSON.parse(readFileSync(join(directory, "candidate.json"), "utf8"));
+          const keys = Object.keys(receipt).sort();
+          const expectedKeys = ["archive", "commit", "integrity", "name", "npmCliArchive", "npmCliIntegrity", "schemaVersion", "treeDigest", "version"].sort();
+          if (JSON.stringify(keys) !== JSON.stringify(expectedKeys) || receipt.schemaVersion !== 2 || receipt.archive !== "agent-kit.tgz" || receipt.npmCliArchive !== "npm-cli.tgz" || receipt.name !== "@slicemedia/agent-kit" || receipt.commit !== releaseCommit || receipt.npmCliIntegrity !== expectedNpmIntegrity || !/^sha512-[A-Za-z0-9+/]+={0,2}$/.test(receipt.integrity) || !/^[0-9a-f]{64}$/.test(receipt.treeDigest) || !/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(receipt.version)) throw new Error("The candidate receipt is invalid.");
+
+          const integrity = (path) => "sha512-" + createHash("sha512").update(readFileSync(path)).digest("base64");
+          const archive = join(directory, receipt.archive);
+          const npmArchive = join(directory, receipt.npmCliArchive);
+          if (integrity(archive) !== receipt.integrity || integrity(npmArchive) !== expectedNpmIntegrity) throw new Error("The candidate artifact integrity is invalid.");
+          const packageManifest = JSON.parse(execFileSync("tar", ["-xOf", archive, "package/package.json"], { encoding: "utf8" }));
+          if (packageManifest.name !== receipt.name || packageManifest.version !== receipt.version || packageManifest.private !== false || packageManifest.publishConfig?.access !== "public" || packageManifest.publishConfig?.provenance !== true) throw new Error("The packed package metadata is invalid.");
+          const npmManifest = JSON.parse(execFileSync("tar", ["-xOf", npmArchive, "package/package.json"], { encoding: "utf8" }));
+          if (npmManifest.name !== "npm" || npmManifest.version !== "11.19.0") throw new Error("The prepared npm CLI is invalid.");
+
+          const currentMain = () => {
+            const output = execFileSync("git", ["ls-remote", "--exit-code", "https://github.com/slicemedia/agent-kit.git", "refs/heads/main"], { encoding: "utf8", env: { ...process.env, GIT_TERMINAL_PROMPT: "0" } }).trim();
+            const [commit, reference] = output.split(/\s+/);
+            if (commit !== releaseCommit || reference !== "refs/heads/main") throw new Error("The approved commit is no longer current main.");
+          };
+          currentMain();
+
+          const npmDirectory = join(directory, "trusted-npm");
+          mkdirSync(npmDirectory, { mode: 0o700 });
+          const entries = execFileSync("tar", ["-tf", npmArchive], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+          if (entries.length === 0 || entries.some((entry) => !entry.startsWith("package/") || entry.includes("../") || entry.includes("\\"))) throw new Error("The prepared npm CLI archive is unsafe.");
+          execFileSync("tar", ["-xzf", npmArchive, "-C", npmDirectory], { stdio: "ignore" });
+          const npmCli = join(npmDirectory, "package", "bin", "npm-cli.js");
+          if (basename(npmCli) !== "npm-cli.js" || execFileSync(process.execPath, [npmCli, "--version"], { encoding: "utf8" }).trim() !== "11.19.0") throw new Error("The reviewed npm CLI version is unavailable.");
+          const userConfig = join(directory, "empty-user.npmrc");
+          writeFileSync(userConfig, "", { encoding: "utf8", flag: "wx", mode: 0o600 });
+          const npmEnvironment = { ...process.env, NPM_CONFIG_USERCONFIG: userConfig };
+          for (const key of Object.keys(npmEnvironment)) {
+            const normalized = key.toUpperCase();
+            if (normalized === "NODE_AUTH_TOKEN" || normalized === "NPM_TOKEN" || normalized === "YARN_NPM_AUTH_TOKEN" || normalized === "NPM_CONFIG_REGISTRY" || normalized === "PNPM_CONFIG_REGISTRY" || normalized === "YARN_NPM_REGISTRY_SERVER" || normalized === "COREPACK_NPM_REGISTRY" || normalized === "SLICEMEDIA_FORBIDDEN_TERMS" || normalized === "SLICEMEDIA_REQUIRE_FORBIDDEN_TERMS" || (/^NPM_CONFIG_/.test(normalized) && /AUTH|TOKEN/.test(normalized))) delete npmEnvironment[key];
+          }
+          npmEnvironment.NPM_CONFIG_USERCONFIG = userConfig;
+          const npm = (arguments_, options = {}) => execFileSync(process.execPath, [npmCli, ...arguments_, "--registry=" + registry, "--userconfig=" + userConfig], { cwd: directory, encoding: "utf8", env: npmEnvironment, ...options });
+          const view = (specification, field) => {
+            try {
+              return JSON.parse(npm(["view", specification, field, "--json"]));
+            } catch (error) {
+              const stderr = String(error?.stderr ?? "");
+              if (/\bE404\b|is not in this registry/.test(stderr)) return undefined;
+              throw error;
+            }
+          };
+
+          const existingVersion = view(receipt.name + "@" + receipt.version, "version");
+          if (existingVersion === undefined) {
+            currentMain();
+            if (integrity(archive) !== receipt.integrity || integrity(npmArchive) !== expectedNpmIntegrity) throw new Error("The candidate changed before publication.");
+            npm(["publish", archive, "--ignore-scripts", "--access", "public", "--tag", "next", "--provenance"], { stdio: "inherit" });
+          } else if (existingVersion !== receipt.version || view(receipt.name + "@" + receipt.version, "dist.integrity") !== receipt.integrity) {
+            throw new Error("The npm version already exists with different bytes.");
+          }
+          console.info("The exact prepared archive was accepted for npm next publication.");
+          NODE
+
+  verify:
+    needs: [prepare, publish]
+    if: needs.publish.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.release_commit }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.15.0
+          check-latest: false
+          package-manager-cache: false
+      - run: npm install --global npm@11.19.0 --ignore-scripts --registry=https://registry.npmjs.org/ --userconfig=/dev/null
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.artifact-id }}
+          path: ${{ runner.temp }}/slicemedia-agent-kit-next
+      - run: chmod 700 "${SLICEMEDIA_RELEASE_DIRECTORY}"
+        shell: bash
+        env:
+          SLICEMEDIA_RELEASE_DIRECTORY: ${{ runner.temp }}/slicemedia-agent-kit-next
+      - run: node scripts/publish-next.mjs verify
+        env:
+          GITHUB_REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+          SLICEMEDIA_RELEASE_COMMIT: ${{ inputs.release_commit }}
+          SLICEMEDIA_RELEASE_DIRECTORY: ${{ runner.temp }}/slicemedia-agent-kit-next

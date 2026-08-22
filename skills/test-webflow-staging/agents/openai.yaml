@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Webflow Staging"
+  short_description: "Verify Webflow behavior on staging safely"
+  default_prompt: "Use $test-webflow-staging to verify an addon on a Webflow staging page."

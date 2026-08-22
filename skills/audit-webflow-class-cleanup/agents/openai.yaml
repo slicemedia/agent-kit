@@ -1,0 +1,15 @@
+interface:
+  display_name: "Audit Webflow Class Cleanup"
+  short_description: "Audit and safely plan Webflow class cleanup"
+  default_prompt: "Use $audit-webflow-class-cleanup to audit this Webflow site for class cleanup without deleting anything."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

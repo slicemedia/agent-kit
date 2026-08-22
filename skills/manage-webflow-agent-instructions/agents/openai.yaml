@@ -1,0 +1,15 @@
+interface:
+  display_name: "Manage Webflow Agent Instructions"
+  short_description: "Manage site-native Webflow AI guidance"
+  default_prompt: "Use $manage-webflow-agent-instructions to inspect and safely plan changes to site-native Webflow Agent Instructions."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

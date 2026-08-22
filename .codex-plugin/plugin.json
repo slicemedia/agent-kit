@@ -1,0 +1,32 @@
+{
+  "name": "agent-kit",
+  "version": "0.1.0",
+  "description": "Focused AI skills for safe, reusable, and verifiable Webflow development workflows.",
+  "author": {
+    "name": "Slice Media"
+  },
+  "homepage": "https://github.com/slicemedia/agent-kit",
+  "repository": "https://github.com/slicemedia/agent-kit",
+  "license": "MIT",
+  "keywords": ["slicemedia", "webflow", "skills", "accessibility", "staging"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Slice Media Agent Kit",
+    "shortDescription": "Focused skills for AI-assisted Webflow development.",
+    "longDescription": "Author, inspect, test, and safely operate Webflow projects with focused skills and explicit, verifiable mutation workflows.",
+    "developerName": "Slice Media",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Enhancement authoring",
+      "Site inspection",
+      "Agent Instructions",
+      "Staging QA",
+      "Safe operations"
+    ],
+    "defaultPrompt": [
+      "Inspect this Webflow task and load the smallest matching skill before proposing changes.",
+      "Design a reusable enhancement with a neutral data-wft contract.",
+      "Diagnose a Webflow browser enhancement without changing remote state."
+    ]
+  }
+}

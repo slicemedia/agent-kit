@@ -1,0 +1,4 @@
+interface:
+  display_name: "Translate Figma to Webflow"
+  short_description: "Map Figma designs to Webflow structure"
+  default_prompt: "Use $translate-figma-to-webflow to map a Figma design into a Webflow-first implementation."

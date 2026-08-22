@@ -1,0 +1,15 @@
+interface:
+  display_name: "Manage Webflow Attributes"
+  short_description: "Manage neutral Webflow behavior hooks"
+  default_prompt: "Use $manage-webflow-attributes to inspect and safely update data-wft attributes in Webflow."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
+
+policy:
+  allow_implicit_invocation: false

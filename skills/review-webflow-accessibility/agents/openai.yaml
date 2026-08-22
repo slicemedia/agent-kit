@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Webflow Accessibility"
+  short_description: "Audit Webflow interactions for accessibility"
+  default_prompt: "Use $review-webflow-accessibility to audit a Webflow component or addon for accessibility."

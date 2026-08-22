@@ -1,0 +1,7 @@
+interface:
+  display_name: "Configure Agent User Profile"
+  short_description: "Configure private local agent preferences"
+  default_prompt: "Use $configure-agent-user-profile to create or manage my private local communication profile."
+
+policy:
+  allow_implicit_invocation: false

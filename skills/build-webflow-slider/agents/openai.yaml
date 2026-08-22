@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Webflow Slider"
+  short_description: "Build maintainable responsive Webflow sliders"
+  default_prompt: "Use $build-webflow-slider to design a responsive Webflow slider contract."

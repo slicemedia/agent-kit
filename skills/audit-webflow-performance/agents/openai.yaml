@@ -1,0 +1,12 @@
+interface:
+  display_name: "Audit Webflow Performance"
+  short_description: "Trace Webflow performance issues by owner"
+  default_prompt: "Use $audit-webflow-performance to audit this Webflow page and separate platform, content, vendor, and project-bundle costs."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"
