@@ -18,6 +18,8 @@ const publisherScriptDigest =
 
 const liveCommitCheck =
   'set -euo pipefail; [[ "${SLICEMEDIA_RELEASE_COMMIT}" =~ ^[0-9a-f]{40}$ ]]; test "${SLICEMEDIA_RELEASE_COMMIT}" = "${SLICEMEDIA_WORKFLOW_COMMIT}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"; test -z "${NODE_AUTH_TOKEN:-}"; test -z "${NPM_TOKEN:-}"; test -z "${YARN_NPM_AUTH_TOKEN:-}"; test -z "${NPM_CONFIG_TOKEN:-}"; test -z "${npm_config_token:-}"; test -z "${NPM_CONFIG_REGISTRY:-}"; test -z "${npm_config_registry:-}"; test -z "${NPM_CONFIG_USERCONFIG:-}"; test -z "${npm_config_userconfig:-}"; test -z "${PNPM_CONFIG_REGISTRY:-}"; test -z "${YARN_NPM_REGISTRY_SERVER:-}"; test -z "${COREPACK_NPM_REGISTRY:-}"; head_commit="$(git rev-parse --verify \'HEAD^{commit}\')"; origin_url="$(git remote get-url origin)"; case "${origin_url}" in https://github.com/slicemedia/agent-kit|https://github.com/slicemedia/agent-kit.git) ;; *) exit 1 ;; esac; remote_line="$(git ls-remote --exit-code origin refs/heads/main)"; live_main="${remote_line%%[[:space:]]*}"; live_ref="${remote_line#*$\'\\t\'}"; test "${head_commit}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_main}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_ref}" = refs/heads/main; test -z "$(git status --porcelain=v1 --untracked-files=all)"';
+const reviewedNpmPathProof =
+  'set -euo pipefail\nnpm_global_prefix="$(npm prefix -g)"\nif [[ "$npm_global_prefix" != /* || "$npm_global_prefix" == *:* || "$npm_global_prefix" == *$\'\\n\'* || "$npm_global_prefix" == *$\'\\r\'* ]]; then\n  echo "npm global prefix is not a safe absolute PATH entry" >&2\n  exit 1\nfi\nnpm_global_bin="${npm_global_prefix%/}/bin"\nif [[ ! -d "$npm_global_bin" || ! -x "$npm_global_bin/npm" ]]; then\n  echo "reviewed npm executable was not found in the global npm bin directory" >&2\n  exit 1\nfi\nexport PATH="$npm_global_bin:$PATH"\nif [[ "$(command -v npm)" != "$npm_global_bin/npm" || "$(npm --version)" != "11.19.0" ]]; then\n  echo "reviewed npm 11.19.0 is not first on PATH" >&2\n  exit 1\nfi\nif [[ -z "${GITHUB_PATH:-}" || "$GITHUB_PATH" != /* || "$GITHUB_PATH" == *$\'\\n\'* || "$GITHUB_PATH" == *$\'\\r\'* ]]; then\n  echo "GITHUB_PATH is not a safe absolute command-file path" >&2\n  exit 1\nfi\nprintf \'%s\\n\' "$npm_global_bin" >> "$GITHUB_PATH"\n';
 
 const liveCommitCheckStep = {
   run: liveCommitCheck,
@@ -85,6 +87,11 @@ const expectedWorkflow = {
         },
         {
           run: "npm install --global npm@11.19.0 --ignore-scripts --registry=https://registry.npmjs.org/ --userconfig=/dev/null",
+        },
+        {
+          name: "Prefer reviewed npm CLI",
+          shell: "bash",
+          run: reviewedNpmPathProof,
         },
         { run: "pnpm install --frozen-lockfile" },
         { run: "pnpm release:publish:check", env: preparationEnvironment },

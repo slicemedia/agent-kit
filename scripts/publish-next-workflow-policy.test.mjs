@@ -55,6 +55,52 @@ describe("publish-next workflow structural policy", () => {
     expect(workflow.match(/git ls-remote --exit-code origin/gmu)).toHaveLength(
       2,
     );
+
+    const prepareSteps = parsedWorkflow.jobs.prepare.steps;
+    const npmInstallIndex = prepareSteps.findIndex(
+      (step) =>
+        step.run ===
+        "npm install --global npm@11.19.0 --ignore-scripts --registry=https://registry.npmjs.org/ --userconfig=/dev/null",
+    );
+    expect(prepareSteps[npmInstallIndex + 1]).toMatchObject({
+      name: "Prefer reviewed npm CLI",
+      shell: "bash",
+    });
+    expect(prepareSteps[npmInstallIndex + 1].run).toContain(
+      'npm_global_prefix="$(npm prefix -g)"',
+    );
+  });
+
+  it("fails closed unless the reviewed npm path proof remains complete", () => {
+    const mutations = [
+      ['"$npm_global_prefix" != /* || ', ""],
+      ['"$npm_global_prefix" == *:* || ', ""],
+      ["\"$npm_global_prefix\" == *$'\\n'* || ", ""],
+      [" || \"$npm_global_prefix\" == *$'\\r'*", ""],
+      [
+        'npm_global_bin="${npm_global_prefix%/}/bin"',
+        'npm_global_bin="${npm_global_prefix}/bin"',
+      ],
+      ['! -d "$npm_global_bin"', '! -e "$npm_global_bin"'],
+      ['! -x "$npm_global_bin/npm"', '! -e "$npm_global_bin/npm"'],
+      ['export PATH="$npm_global_bin:$PATH"', 'export PATH="$PATH"'],
+      ['"$(command -v npm)" != "$npm_global_bin/npm" || ', ""],
+      ['"$(npm --version)" != "11.19.0"', '"11.19.0" != "11.19.0"'],
+      ['-z "${GITHUB_PATH:-}" || ', ""],
+      ['"$GITHUB_PATH" != /* || ', ""],
+      ["\"$GITHUB_PATH\" == *$'\\n'* || ", ""],
+      [" || \"$GITHUB_PATH\" == *$'\\r'*", ""],
+      [
+        'printf \'%s\\n\' "$npm_global_bin" >> "$GITHUB_PATH"',
+        'printf \'%s\\n\' "$PATH" >> "$GITHUB_PATH"',
+      ],
+    ];
+
+    for (const [reviewed, weakened] of mutations) {
+      const mutated = workflow.replace(reviewed, weakened);
+      expect(mutated).not.toBe(workflow);
+      expectRejected(mutated);
+    }
   });
 
   it("keeps repository code and private scanning out of the OIDC job", () => {
