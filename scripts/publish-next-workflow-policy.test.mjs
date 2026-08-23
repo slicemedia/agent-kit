@@ -129,6 +129,22 @@ describe("publish-next workflow structural policy", () => {
     expect(JSON.stringify(verify)).not.toContain("secrets.");
   });
 
+  it("rejects nested candidate extraction in either consumer job", () => {
+    const reviewed = "          merge-multiple: true";
+    const indexes = [];
+    let index = workflow.indexOf(reviewed);
+    while (index !== -1) {
+      indexes.push(index);
+      index = workflow.indexOf(reviewed, index + reviewed.length);
+    }
+    expect(indexes).toHaveLength(2);
+
+    for (const candidateIndex of indexes) {
+      const mutated = `${workflow.slice(0, candidateIndex)}          merge-multiple: false${workflow.slice(candidateIndex + reviewed.length)}`;
+      expectRejected(mutated);
+    }
+  });
+
   it.each([
     [
       "public repository gate",

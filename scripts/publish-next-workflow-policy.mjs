@@ -147,6 +147,7 @@ const expectedWorkflow = {
           uses: downloadArtifactAction,
           with: {
             "artifact-ids": "${{ needs.prepare.outputs.artifact-id }}",
+            "merge-multiple": true,
             path: "${{ runner.temp }}/slicemedia-agent-kit-next",
           },
         },
@@ -194,6 +195,7 @@ const expectedWorkflow = {
           uses: downloadArtifactAction,
           with: {
             "artifact-ids": "${{ needs.prepare.outputs.artifact-id }}",
+            "merge-multiple": true,
             path: "${{ runner.temp }}/slicemedia-agent-kit-next",
           },
         },
