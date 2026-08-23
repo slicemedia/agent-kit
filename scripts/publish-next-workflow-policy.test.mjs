@@ -236,6 +236,14 @@ describe("publish-next workflow structural policy", () => {
         ),
     ],
     [
+      "artifact digest algorithm binding",
+      (source) =>
+        source.replace(
+          "sha256:${{ needs.prepare.outputs.artifact-digest }}",
+          "${{ needs.prepare.outputs.artifact-digest }}",
+        ),
+    ],
+    [
       "minimal reviewed publisher",
       (source) =>
         source.replace(
