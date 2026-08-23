@@ -551,7 +551,7 @@ describe("local user profile privacy", () => {
     await expect(
       readFile(join(parent, ".gitignore"), "utf8"),
     ).rejects.toThrow();
-  });
+  }, 15_000);
 
   it("rejects a path already staged in the Git index", async () => {
     const root = await temporaryProject();

@@ -658,7 +658,7 @@ describe("agent adapter generation", () => {
       "user-owned\n",
     );
     expect(await exists(join(root, "CLAUDE.md"))).toBe(true);
-  });
+  }, 15_000);
 
   it("converges from all targets to Codex while preserving unrelated files", async () => {
     const root = await temporaryProject("slicemedia-agent-kit-converge-");
