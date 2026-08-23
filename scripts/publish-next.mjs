@@ -30,6 +30,8 @@ const npmCliIntegrity =
 const maximumArchiveBytes = 32 * 1024 * 1024;
 const maximumArchiveEntries = 4096;
 const maximumReceiptBytes = 16 * 1024;
+const registryAvailabilityMaximumAttempts = 73;
+const registryAvailabilityIntervalMilliseconds = 15_000;
 
 function prohibitedEnvironmentKey(key) {
   const normalized = key.toUpperCase();
@@ -338,7 +340,11 @@ async function waitForRegistryPackage(
   userConfig,
   directory,
 ) {
-  for (let attempt = 1; attempt <= 12; attempt += 1) {
+  for (
+    let attempt = 1;
+    attempt <= registryAvailabilityMaximumAttempts;
+    attempt += 1
+  ) {
     if (
       (await npmView(
         `${name}@${version}`,
@@ -355,7 +361,9 @@ async function waitForRegistryPackage(
     ) {
       return;
     }
-    if (attempt < 12) await delay(5_000);
+    if (attempt < registryAvailabilityMaximumAttempts) {
+      await delay(registryAvailabilityIntervalMilliseconds);
+    }
   }
   throw new Error(
     `${name}@${version} did not become readable with the approved integrity.`,

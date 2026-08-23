@@ -169,7 +169,7 @@ const expectedWorkflow = {
       needs: ["prepare", "publish"],
       if: "needs.publish.result == 'success'",
       "runs-on": "ubuntu-latest",
-      "timeout-minutes": 10,
+      "timeout-minutes": 25,
       permissions: { contents: "read" },
       steps: [
         {

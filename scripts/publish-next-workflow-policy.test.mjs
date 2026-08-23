@@ -123,6 +123,7 @@ describe("publish-next workflow structural policy", () => {
     );
 
     expect(verify.environment).toBeUndefined();
+    expect(verify["timeout-minutes"]).toBe(25);
     expect(verify.permissions).toEqual({ contents: "read" });
     expect(JSON.stringify(verify)).not.toContain("id-token");
     expect(JSON.stringify(verify)).not.toContain("secrets.");
@@ -246,6 +247,11 @@ describe("publish-next workflow structural policy", () => {
       "unprivileged registry verification",
       (source) =>
         source.replace("  verify:\n", "  verify:\n    environment: npm-next\n"),
+    ],
+    [
+      "bounded registry verification window",
+      (source) =>
+        source.replace("    timeout-minutes: 25", "    timeout-minutes: 10"),
     ],
     [
       "immutable action pin",
@@ -446,6 +452,18 @@ describe("fixed archive integrity", () => {
     ).toBeGreaterThanOrEqual(3);
     expect(publisher).toContain("await archiveIntegrity(registryArchive)");
     expect(publisher).toContain("await archiveTreeDigest(registryArchive)");
+    expect(publisher).toContain(
+      "const registryAvailabilityMaximumAttempts = 73;",
+    );
+    expect(publisher).toContain(
+      "const registryAvailabilityIntervalMilliseconds = 15_000;",
+    );
+    expect(publisher).toContain(
+      "attempt <= registryAvailabilityMaximumAttempts",
+    );
+    expect(publisher).toContain(
+      "await delay(registryAvailabilityIntervalMilliseconds)",
+    );
     expect(publisher).not.toMatch(/\bnpm\s+(?:unpublish|deprecate)\b/u);
     expect(publisher).not.toMatch(/\b(?:git\s+tag|gh\s+release)\b/u);
   });
