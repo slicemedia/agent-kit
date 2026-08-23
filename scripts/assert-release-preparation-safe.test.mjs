@@ -31,7 +31,7 @@ function expectRejected(source) {
 }
 
 describe("release preparation", () => {
-  it("accepts the pinned version-only workflow for the private repository", async () => {
+  it("accepts the pinned version-only workflow for recognized private visibility", async () => {
     const result = await run({
       GITHUB_REPOSITORY: "slicemedia/agent-kit",
       GITHUB_REPOSITORY_VISIBILITY: "private",
@@ -42,7 +42,7 @@ describe("release preparation", () => {
     expect(result.stdout).toMatch(/npm publication is disabled/u);
   });
 
-  it("also accepts the version-only workflow after a public transition", async () => {
+  it("accepts the pinned version-only workflow for recognized public visibility", async () => {
     const result = await run({
       GITHUB_REPOSITORY: "slicemedia/agent-kit",
       GITHUB_REPOSITORY_VISIBILITY: "public",
