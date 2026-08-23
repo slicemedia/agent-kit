@@ -72,7 +72,7 @@ const expectedWorkflow = {
           with: {
             "fetch-depth": 0,
             "persist-credentials": false,
-            ref: "${{ inputs.release_commit }}",
+            ref: "${{ github.sha }}",
           },
         },
         liveCommitCheckStep,
@@ -177,7 +177,7 @@ const expectedWorkflow = {
           uses: checkoutAction,
           with: {
             "persist-credentials": false,
-            ref: "${{ inputs.release_commit }}",
+            ref: "${{ github.sha }}",
           },
         },
         {

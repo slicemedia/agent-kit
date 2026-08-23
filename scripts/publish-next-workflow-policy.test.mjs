@@ -169,11 +169,11 @@ describe("publish-next workflow structural policy", () => {
         source.replace("        required: true", "        required: false"),
     ],
     [
-      "exact checkout",
+      "trusted workflow checkout",
       (source) =>
         source.replace(
+          "          ref: ${{ github.sha }}",
           "          ref: ${{ inputs.release_commit }}",
-          "          ref: main",
         ),
     ],
     [

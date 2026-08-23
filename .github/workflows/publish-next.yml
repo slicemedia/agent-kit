@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ inputs.release_commit }}
+          ref: ${{ github.sha }}
       - run: set -euo pipefail; [[ "${SLICEMEDIA_RELEASE_COMMIT}" =~ ^[0-9a-f]{40}$ ]]; test "${SLICEMEDIA_RELEASE_COMMIT}" = "${SLICEMEDIA_WORKFLOW_COMMIT}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"; test -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"; test -z "${NODE_AUTH_TOKEN:-}"; test -z "${NPM_TOKEN:-}"; test -z "${YARN_NPM_AUTH_TOKEN:-}"; test -z "${NPM_CONFIG_TOKEN:-}"; test -z "${npm_config_token:-}"; test -z "${NPM_CONFIG_REGISTRY:-}"; test -z "${npm_config_registry:-}"; test -z "${NPM_CONFIG_USERCONFIG:-}"; test -z "${npm_config_userconfig:-}"; test -z "${PNPM_CONFIG_REGISTRY:-}"; test -z "${YARN_NPM_REGISTRY_SERVER:-}"; test -z "${COREPACK_NPM_REGISTRY:-}"; head_commit="$(git rev-parse --verify 'HEAD^{commit}')"; origin_url="$(git remote get-url origin)"; case "${origin_url}" in https://github.com/slicemedia/agent-kit|https://github.com/slicemedia/agent-kit.git) ;; *) exit 1 ;; esac; remote_line="$(git ls-remote --exit-code origin refs/heads/main)"; live_main="${remote_line%%[[:space:]]*}"; live_ref="${remote_line#*$'\t'}"; test "${head_commit}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_main}" = "${SLICEMEDIA_RELEASE_COMMIT}"; test "${live_ref}" = refs/heads/main; test -z "$(git status --porcelain=v1 --untracked-files=all)"
         shell: bash
         env:
@@ -227,7 +227,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ inputs.release_commit }}
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24.15.0
