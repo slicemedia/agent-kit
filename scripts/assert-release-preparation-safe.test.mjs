@@ -30,7 +30,7 @@ function expectRejected(source) {
   expect(validateReleaseWorkflow(source)).not.toEqual([]);
 }
 
-describe("private release preparation", () => {
+describe("release preparation", () => {
   it("accepts the pinned version-only workflow for the private repository", async () => {
     const result = await run({
       GITHUB_REPOSITORY: "slicemedia/agent-kit",

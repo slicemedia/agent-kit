@@ -1,10 +1,16 @@
 import { spawn } from "node:child_process";
 
-const allowedRootFiles = new Set(["LICENSE", "README.md", "package.json"]);
+const allowedRootFiles = new Set([
+  "CHANGELOG.md",
+  "LICENSE",
+  "README.md",
+  "package.json",
+]);
 const allowedPrefixes = [".codex-plugin/", "content/", "dist/", "skills/"];
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const requiredFiles = [
   ".codex-plugin/plugin.json",
+  "CHANGELOG.md",
   "dist/bin.js",
   "dist/index.d.ts",
   "dist/index.js",

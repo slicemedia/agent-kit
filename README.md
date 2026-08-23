@@ -10,8 +10,8 @@ read-back, and verification distinct.
 
 ## Install and run
 
-The package is private during incubation and is not published to npm yet. During the future public
-prerelease, use the `next` tag with the package manager already selected by the consuming project.
+Public release candidates are distributed from the `next` tag. Install one with the package
+manager already selected by the consuming project.
 
 With pnpm:
 
@@ -54,9 +54,6 @@ Focused skills are generated into each selected local agent's supported project 
 `.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, or `.github/skills/`. The Webflow target
 receives a Markdown-only Agent Instructions ZIP; local-only workflows are excluded from it.
 
-The repository and npm package remain private during incubation. Change the package's `private`
-flag only as part of a reviewed release commit.
-
 ## Runtime and platform support
 
 Agent Kit supports Node 22.13 or newer in the Node 22 line and the maintained Node 24 line on Linux,
@@ -75,6 +72,17 @@ Repository sanitization accepts private release-denylist terms only as a JSON st
 the rule index and encoding kind; configured values are never printed. Set
 `SLICEMEDIA_REQUIRE_FORBIDDEN_TERMS=true` for a gate that must fail when no private terms are
 configured.
+
+During the `0.x` series, the current `latest` minor line and the active release candidate on `next`
+receive fixes. Older minor lines do not receive guaranteed backports. Public APIs and generated
+output may change between minor releases; patch releases are intended to remain compatible within
+their minor line. Node support follows the versions listed above. Maintenance is best-effort: the
+project does not provide a support SLA or long-term support branches. Report bugs through GitHub
+Issues and follow `SECURITY.md` for suspected vulnerabilities.
+
+An exact version such as `0.1.0` identifies immutable package contents. npm's movable `next` and
+`latest` dist-tags select which already-published version is the active candidate or general-use
+release; the tags are not semantic versions themselves.
 
 ## Optional Client-First workflow
 
@@ -162,6 +170,11 @@ data disable implicit invocation. Invoke them by their exact name, such as
 AI assisted heavily in building this project. AI-generated code and guidance may contain defects;
 production use still requires human review, accessibility and security checks, and project-specific
 testing.
+
+Slice Media Agent Kit is an independent project. It is not affiliated with, endorsed by, or an
+official product of Webflow, Finsweet, OpenAI, Anthropic, Cursor, or GitHub. Product names and
+trademarks belong to their respective owners. The official documentation and terms of each
+platform remain authoritative.
 
 Contributions are welcome under the [contribution guide](CONTRIBUTING.md) and
 [Code of Conduct](CODE_OF_CONDUCT.md). Security reports should follow [SECURITY.md](SECURITY.md).

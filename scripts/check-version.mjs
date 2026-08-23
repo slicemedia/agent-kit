@@ -34,12 +34,9 @@ if (changesets.baseBranch !== "main" || changesets.access !== "public") {
     "Changesets must target main and prepare public package metadata.",
   );
 }
-if (
-  changesets.privatePackages?.version !== true ||
-  changesets.privatePackages?.tag !== false
-) {
+if ("privatePackages" in changesets) {
   errors.push(
-    "Changesets must version the private package without creating private-package tags.",
+    "Public Agent Kit versioning must not use privatePackages overrides.",
   );
 }
 if (

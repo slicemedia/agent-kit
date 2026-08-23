@@ -4,18 +4,20 @@ Agent Kit is one independently versioned package. Changesets records user-visibl
 the version in `package.json`; Git tags and GitHub Releases are distribution records, not the source
 of the package version.
 
-## Private preparation
+## Release preparation
 
-Add a changeset with `pnpm changeset` for every publishable change. `pnpm version-packages` applies
-the pending changesets, updates the lockfile, and verifies the single-package version metadata.
+The initial public baseline is already versioned as `0.1.0`. Its development history is
+consolidated in `CHANGELOG.md`, so publish that reviewed baseline without running a version step.
+For every publishable change after `0.1.0`, add a changeset with `pnpm changeset`.
+`pnpm version-packages` applies those later changesets, updates the lockfile, and verifies the
+single-package version metadata.
 
 The `Release PR` workflow is intentionally version-only. It runs only after a push to `main`; manual
-dispatch is not supported. It can create a draft Changesets version pull request during private
-incubation and after public launch. The version job also requires the repository variable
-`SLICEMEDIA_RELEASE_PR_ENABLED` to equal `true`. Leave that variable unset during incubation; set it
-deliberately only after the organization or repository policy allows GitHub Actions to create pull
-requests. A push may trigger the workflow while the variable is unset, but the version job skips
-without running.
+dispatch is not supported. It can create a draft Changesets version pull request for maintenance
+releases. The version job also requires the repository variable `SLICEMEDIA_RELEASE_PR_ENABLED` to
+equal `true`. Keep that variable unset unless the release-PR workflow is deliberately active and
+the organization or repository policy allows GitHub Actions to create pull requests. A push may
+trigger the workflow while the variable is unset, but the version job skips without running.
 
 The workflow has no npm credential, OIDC publication permission, publish command, tag command, or
 GitHub Release step. Its structural safety guard requires an explicit private or public visibility
@@ -29,28 +31,42 @@ and with Node 24, then inspect the `npm pack --dry-run` inventory. The GitHub ma
 package gate on Linux and Windows. Sanitization, adapter validation, skill evaluations, and a packed
 consumer test in DevKit must pass with the actual Agent Kit archive.
 
-## Staged public prerelease
+## Public release candidate
 
-The separate `Publish npm prerelease` workflow is staged but cannot publish during incubation. Its
-jobs run only after a manual dispatch supplies the full lowercase 40-character release commit, the
-repository is public, and `SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED` explicitly equals `true`. The
-checked-in package must explicitly set `private: false`; it remains `private: true` until the
-reviewed launch commit.
+The separate `Publish npm prerelease` workflow runs only after a manual dispatch supplies the full
+lowercase 40-character release commit, the repository is public, and
+`SLICEMEDIA_NPM_PUBLISH_NEXT_ENABLED` explicitly equals `true`. The checked-in package must
+explicitly set `private: false`.
+
+### One-time npm identity bootstrap
+
+npm requires the scoped package record to exist before its trusted publisher can be attached. For
+the first release only, an npm organization owner must publish a minimal identity package with
+public access as `0.0.0-bootstrap.0` under a non-default `bootstrap` tag. This artifact proves control
+of `@slicemedia/agent-kit`; it is not an Agent Kit product release and must not receive the `next`
+or `latest` tag.
+
+Use an explicitly authenticated owner session protected by 2FA. Do not create a long-lived
+automation token, and never place npm credentials in this repository, GitHub Actions, generated
+files, receipts, or logs. After publication, verify the package scope, Slice Media organization
+ownership, version, and `bootstrap` tag from an unauthenticated registry request. Then configure
+the trusted publisher with the `npm publish` allowed action and use only the reviewed OIDC workflow
+for real releases.
 
 Before enabling the workflow:
 
 1. Finish the naming, ownership, sanitization, legal, and automated clean-room neutral-project
    gates. A live client-project pilot is not required before the first `0.x` release under `next`.
-2. Configure `@slicemedia/agent-kit` under the Slice Media npm organization and bind its npm trusted
+2. Complete and verify the one-time identity bootstrap above. Bind the package's npm trusted
    publisher to `slicemedia/agent-kit`, `.github/workflows/publish-next.yml`, and the `npm-next`
-   GitHub environment.
+   GitHub environment, with the `npm publish` action explicitly allowed.
 3. Keep the main-only `release-sanitize` environment separate from `npm-next`. Store the reviewed
    private release denylist as a JSON string array in the `release-sanitize` environment secret
    `SLICEMEDIA_FORBIDDEN_TERMS`; configured values are never printed. Configure `npm-next` with
    required reviewers and no denylist or npm token. Keep the repository enablement variable unset
    until npm trusted publishing and both environment policies have been independently verified.
 4. Merge the reviewed version change on `main`, confirm that the target version is not already on
-   npm, make the repository public, and only then set the enablement variable.
+   npm, confirm the repository is public, and only then set the enablement variable.
 5. Dispatch the workflow with the exact full commit SHA currently at `origin/main`. Required
    reviewers must compare the input with the reviewed release commit before approving the
    `npm-next` environment.
@@ -89,7 +105,11 @@ the `next` tag. An already-published identical version is accepted without a sec
 a byte mismatch fails closed. Structural tests reject additional steps, altered actions, broad
 permissions, credential paths, `latest`, Git tags, and GitHub Releases.
 
-Publish immutable `0.x` prereleases under npm's `next` tag first. After a successful npm publish,
+After the first verified OIDC release, set the package's npm Publishing access to require
+two-factor authentication and disallow tokens. Trusted publishing is additive, so this package
+setting closes token-based publication paths outside the reviewed workflow.
+
+Publish immutable `0.x` release candidates under npm's `next` tag first. After a successful npm publish,
 review the registry verification receipt and create the matching Git tag and GitHub Release from
 the exact version commit through a separate explicit operation. Promote the already published
 artifact to `latest` only after the release candidates and public-readiness review pass; do not

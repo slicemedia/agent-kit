@@ -28,6 +28,9 @@ supported Node lines.
   covered where the CI platform can exercise it.
 - Add a Changeset for every user-visible change with `pnpm changeset`.
 - Do not add npm tokens, package publication, tags, or GitHub Releases to the version-PR workflow.
+- Review AI-assisted contributions as carefully as handwritten changes. Contributors remain
+  responsible for correctness, licensing, security, accessibility, and removal of confidential
+  project data.
 
 ## Pull requests
 

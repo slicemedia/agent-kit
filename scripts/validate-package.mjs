@@ -64,6 +64,11 @@ const plugin = JSON.parse(
 
 if (packageJson.name !== "@slicemedia/agent-kit")
   throw new Error("Unexpected package name");
+if (packageJson.private !== false) {
+  throw new Error(
+    "Agent Kit must explicitly declare private=false for publication",
+  );
+}
 if (packageJson.engines?.node !== ">=22.13 <23 || >=24 <25") {
   throw new Error(
     "Agent Kit must support Node 22.13+ and the maintained Node 24 line",
@@ -85,6 +90,7 @@ for (const required of [
   "content",
   "dist",
   "skills",
+  "CHANGELOG.md",
   "LICENSE",
   "README.md",
 ]) {

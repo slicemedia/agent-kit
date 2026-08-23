@@ -28,6 +28,7 @@ const manifest = JSON.parse(
   await readFile(resolve(repositoryRoot, "package.json"), "utf8"),
 );
 const publicManifest = { ...manifest, private: false };
+const privateManifest = { ...manifest, private: true };
 const commit = "a".repeat(40);
 const publicEnvironment = {
   GITHUB_REPOSITORY: "slicemedia/agent-kit",
@@ -240,10 +241,17 @@ describe("publish-next preparation policy", () => {
     ).toEqual([]);
   });
 
-  it("keeps the incubating repository manifest private", () => {
-    expect(manifest.private).toBe(true);
+  it("keeps the reviewed repository manifest explicitly public", () => {
+    expect(manifest.private).toBe(false);
     expect(
       validatePublishNextPreflight(manifest, publicEnvironment, "11.19.0"),
+    ).toEqual([]);
+    expect(
+      validatePublishNextPreflight(
+        privateManifest,
+        publicEnvironment,
+        "11.19.0",
+      ),
     ).toContain("@slicemedia/agent-kit must explicitly set private=false.");
   });
 
