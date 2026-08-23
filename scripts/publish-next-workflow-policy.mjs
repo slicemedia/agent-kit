@@ -155,7 +155,7 @@ const expectedWorkflow = {
           shell: "bash",
           env: {
             SLICEMEDIA_ARTIFACT_DIGEST:
-              "${{ needs.prepare.outputs.artifact-digest }}",
+              "sha256:${{ needs.prepare.outputs.artifact-digest }}",
             SLICEMEDIA_RELEASE_COMMIT: "${{ inputs.release_commit }}",
             SLICEMEDIA_RELEASE_DIRECTORY:
               "${{ runner.temp }}/slicemedia-agent-kit-next",
