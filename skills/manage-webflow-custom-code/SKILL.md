@@ -1,6 +1,8 @@
 ---
 name: manage-webflow-custom-code
 description: Explicitly inspect, plan, and perform bounded Webflow custom-code changes through Webflow MCP with preservation checks and read-back. Use only when the user directly asks to register, apply, update, remove, or replace site/page custom code.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Manage Webflow Custom Code

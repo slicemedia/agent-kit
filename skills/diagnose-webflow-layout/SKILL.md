@@ -1,13 +1,15 @@
 ---
 name: diagnose-webflow-layout
 description: Diagnose reproducible Webflow flex, grid, sizing, overflow, positioning, and breakpoint layout failures and propose the narrowest native fix. Use for responsive defects or content-dependent breakage, not for an open-ended visual redesign.
+metadata:
+  surfaces: [local-agent, webflow-site]
 ---
 
 # Diagnose Webflow Layout
 
 Webflow MCP version: 2.0.1.
 
-Diagnose read-only first. Prefer Webflow-native structure and styles over browser code. A Designer or remote-state change requires an explicit request and confirmation of the exact plan.
+Diagnose read-only first. Call `webflow_guide_tool` before any other Webflow tool. Prefer Webflow-native structure and styles over browser code. A Designer or remote-state change requires an explicit request and confirmation of the exact plan. If rendered or computed evidence is unavailable, limit the diagnosis to Webflow structure and style data, mark visual behavior unverified, and do not mutate from inference.
 
 ## Workflow
 
@@ -24,7 +26,7 @@ Read [the layout diagnostic guide](references/layout-diagnostic-guide.md) when t
 
 ## Editor-facing handoff
 
-Name the affected instance, shared component, class/combo class, CMS template or collection, page, and site scope precisely. State whether future edits belong in Webflow structure/styles or local browser code, which other instances and breakpoints inherit the result, and the verification, publication, restore-point, or waiver state.
+Name the affected instance, shared component, class/combo class, CMS template or collection, page, and site scope precisely. State whether future edits belong in Webflow or require a separate development handoff, which other instances and breakpoints inherit the result, and the verification, publication, restore-point, or waiver state.
 
 ## Stop conditions
 

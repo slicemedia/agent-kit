@@ -2,7 +2,7 @@
 name: configure-agent-user-profile
 description: Explicitly create, review, replace, or delete a private local communication profile for AI agents. Use only when the user directly asks to personalize explanation language or depth, or to manage an existing Agent Kit user profile.
 metadata:
-  distribution: local-only
+  surfaces: [local-agent]
 ---
 
 # Configure Agent User Profile

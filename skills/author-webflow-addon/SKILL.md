@@ -1,6 +1,8 @@
 ---
 name: author-webflow-addon
 description: Design, implement, test, and document a reusable Webflow browser enhancement with the @slicemedia/devkit-addon lifecycle. Use when creating project behavior, extracting a neutral addon, changing addon metadata, or reviewing lifecycle safety.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Author Webflow Addon

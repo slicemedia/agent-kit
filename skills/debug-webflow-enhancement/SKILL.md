@@ -1,6 +1,8 @@
 ---
 name: debug-webflow-enhancement
 description: Diagnose a Webflow browser enhancement across build output, loaded scripts, markup hooks, lifecycle timing, breakpoints, DOM mutations, accessibility, and runtime errors. Use when behavior works locally but not in Designer, staging, CMS content, or a published page.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Debug Webflow Enhancement

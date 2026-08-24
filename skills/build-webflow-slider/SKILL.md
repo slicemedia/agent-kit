@@ -1,6 +1,8 @@
 ---
 name: build-webflow-slider
 description: Design, implement, and test responsive Webflow sliders with the optional Slice Media Swiper Adapter and neutral markup. Use for carousels, CMS lists, breakpoint conversion, or reusable slider foundations.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Build Webflow Slider

@@ -10,6 +10,14 @@ import {
   type AdapterTarget,
   collectSkills,
   getAgentKitPaths,
+  WEBFLOW_INSTRUCTION_ARCHIVE_PATH,
+  WEBFLOW_INSTRUCTION_MANIFEST_PATH,
+  WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION,
+  WEBFLOW_MCP_COMPATIBILITY,
+  WEBFLOW_MCP_VERSION,
+  WEBFLOW_SITE_RULE_FILES,
+  WEBFLOW_SITE_SURFACE,
+  type WebflowInstructionPackManifest,
 } from "./generate.js";
 
 export interface ValidationResult {
@@ -34,6 +42,7 @@ const explicitOnly = new Set([
 
 const mcpAware = new Set([
   "audit-webflow-class-cleanup",
+  "audit-webflow-client-first",
   "audit-webflow-performance",
   "build-webflow-motion",
   "build-webflow-with-client-first",
@@ -66,6 +75,7 @@ const recoveryAware = new Set([
 
 const handoffAware = new Set([
   "audit-webflow-class-cleanup",
+  "audit-webflow-client-first",
   "audit-webflow-performance",
   "author-webflow-addon",
   "build-webflow-motion",
@@ -210,7 +220,10 @@ function expectedAdapterPaths(target: AdapterTarget): string[] {
         ".github/skills/",
       ];
     case "webflow":
-      return [".slicemedia/agent-kit/webflow-agent-instructions.zip"];
+      return [
+        WEBFLOW_INSTRUCTION_ARCHIVE_PATH,
+        WEBFLOW_INSTRUCTION_MANIFEST_PATH,
+      ];
   }
 }
 
@@ -234,9 +247,9 @@ async function readManifest(
     if (manifest.product !== "@slicemedia/agent-kit") {
       errors.push("Generated adapter manifest declares the wrong product");
     }
-    if (manifest.webflowMcpVersion !== "2.0.1") {
+    if (manifest.webflowMcpVersion !== WEBFLOW_MCP_VERSION) {
       errors.push(
-        "Generated adapter manifest must declare Webflow MCP version 2.0.1",
+        `Generated adapter manifest must declare Webflow MCP version ${WEBFLOW_MCP_VERSION}`,
       );
     }
     if (manifest.adapters.some((target) => !ADAPTER_TARGETS.includes(target))) {
@@ -272,11 +285,17 @@ export async function validateAdapters(
     ) {
       errors.push(`${skill.name} must disable implicit invocation`);
     }
+    const isWebflowSiteSkill = skill.surfaces.includes(WEBFLOW_SITE_SURFACE);
     if (
-      mcpAware.has(skill.name) &&
-      !source.includes("Webflow MCP version: 2.0.1.")
+      (mcpAware.has(skill.name) || isWebflowSiteSkill) &&
+      !source.includes(`Webflow MCP version: ${WEBFLOW_MCP_VERSION}.`)
     ) {
       errors.push(`${skill.name} must declare Webflow MCP version 2.0.1`);
+    }
+    if (isWebflowSiteSkill && !source.includes("webflow_guide_tool")) {
+      errors.push(
+        `${skill.name} must consult webflow_guide_tool before site-native work`,
+      );
     }
     if (
       recoveryAware.has(skill.name) &&
@@ -373,26 +392,126 @@ export async function validateAdapters(
   }
 
   if (manifest?.adapters.includes("webflow")) {
-    const archivePath = join(
-      paths.generatedRoot,
-      "webflow-agent-instructions.zip",
+    const archivePath = join(paths.repoRoot, WEBFLOW_INSTRUCTION_ARCHIVE_PATH);
+    const packManifestPath = join(
+      paths.repoRoot,
+      WEBFLOW_INSTRUCTION_MANIFEST_PATH,
     );
     const archive = await readFile(archivePath).catch(() => undefined);
-    if (archive) {
-      const entries = Object.keys(unzipSync(archive));
-      for (const skill of skills) {
+    const packManifestSource = await readFile(packManifestPath, "utf8").catch(
+      () => undefined,
+    );
+    if (archive && packManifestSource) {
+      try {
+        const packManifest = JSON.parse(
+          packManifestSource,
+        ) as WebflowInstructionPackManifest;
+        const packageMetadata = JSON.parse(
+          await readFile(join(paths.packageRoot, "package.json"), "utf8"),
+        ) as { version?: unknown };
+        const archiveEntries = unzipSync(archive);
+        const entryPaths = Object.keys(archiveEntries);
+        const siteSkills = skills.filter((skill) =>
+          skill.surfaces.includes(WEBFLOW_SITE_SURFACE),
+        );
+        const siteSkillNames = new Set(siteSkills.map((skill) => skill.name));
+        const expectedRules = new Set([
+          "rules/00-agent-kit-pack.md",
+          ...WEBFLOW_SITE_RULE_FILES.map((file) => `rules/${file}`),
+        ]);
+
         if (
-          skill.distribution === "local-only" &&
-          entries.some((entry) => entry.startsWith(`skills/${skill.name}/`))
+          packManifest.schemaVersion !== WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION
+        ) {
+          errors.push("Webflow instruction pack uses an unsupported schema");
+        }
+        if (
+          packManifest.product !== "@slicemedia/agent-kit" ||
+          packManifest.version !== packageMetadata.version
         ) {
           errors.push(
-            `Local-only skill is present in Webflow Agent Instructions: ${skill.name}`,
+            "Webflow instruction pack product version does not match Agent Kit",
           );
         }
-      }
-      if (entries.includes("rules/local-user-profile.md")) {
+        if (packManifest.surface !== WEBFLOW_SITE_SURFACE) {
+          errors.push("Webflow instruction pack declares the wrong surface");
+        }
+        if (
+          packManifest.webflowMcp?.testedVersion !== WEBFLOW_MCP_VERSION ||
+          packManifest.webflowMcp?.compatibleRange !== WEBFLOW_MCP_COMPATIBILITY
+        ) {
+          errors.push(
+            "Webflow instruction pack has invalid MCP compatibility metadata",
+          );
+        }
+        if (packManifest.archiveSha256 !== digest(archive)) {
+          errors.push("Webflow instruction pack archive digest does not match");
+        }
+
+        const recordedPaths = packManifest.files.map((file) => file.path);
+        if (
+          JSON.stringify(recordedPaths) !==
+          JSON.stringify([...recordedPaths].sort())
+        ) {
+          errors.push("Webflow instruction pack files must be sorted");
+        }
+        if (
+          JSON.stringify(recordedPaths) !==
+          JSON.stringify([...entryPaths].sort())
+        ) {
+          errors.push(
+            "Webflow instruction pack manifest does not match archive entries",
+          );
+        }
+        for (const file of packManifest.files) {
+          const value = archiveEntries[file.path];
+          if (!value || digest(value) !== file.sha256) {
+            errors.push(
+              `Webflow instruction pack file digest does not match: ${file.path}`,
+            );
+          }
+        }
+
+        for (const entry of entryPaths) {
+          const skillName = entry.match(/^skills\/([^/]+)\//u)?.[1];
+          const allowed = skillName
+            ? siteSkillNames.has(skillName)
+            : expectedRules.has(entry);
+          if (!allowed || !/\.(?:md|mdc)$/u.test(entry)) {
+            errors.push(
+              `Webflow instruction pack contains a non-site-safe path: ${entry}`,
+            );
+          }
+        }
+
+        for (const skill of skills) {
+          const included = entryPaths.some((entry) =>
+            entry.startsWith(`skills/${skill.name}/`),
+          );
+          if (skill.surfaces.includes(WEBFLOW_SITE_SURFACE) && !included) {
+            errors.push(
+              `Site-safe skill is missing from Webflow Agent Instructions: ${skill.name}`,
+            );
+          }
+          if (!skill.surfaces.includes(WEBFLOW_SITE_SURFACE) && included) {
+            errors.push(
+              `Non-site skill is present in Webflow Agent Instructions: ${skill.name}`,
+            );
+          }
+        }
+        if (
+          JSON.stringify(packManifest.skills) !==
+          JSON.stringify(
+            siteSkills.map(({ name, description }) => ({ name, description })),
+          )
+        ) {
+          errors.push(
+            "Webflow instruction pack skill allowlist does not match canonical surfaces",
+          );
+        }
+      } catch {
         errors.push(
-          "Local user-profile guidance must not enter Webflow Agent Instructions",
+          `Invalid Webflow instruction pack manifest: ${packManifestPath}`,
         );
       }
     }

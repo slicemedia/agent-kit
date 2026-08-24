@@ -27,10 +27,42 @@ export interface SkillMetadata {
   name: string;
   description: string;
   directory: string;
+  surfaces: SkillSurface[];
   distribution: SkillDistribution;
 }
 
 export type SkillDistribution = "all" | "local-only";
+export const SKILL_SURFACES = ["local-agent", "webflow-site"] as const;
+export type SkillSurface = (typeof SKILL_SURFACES)[number];
+
+export const WEBFLOW_SITE_SURFACE = "webflow-site" as const;
+export const WEBFLOW_MCP_VERSION = "2.0.1" as const;
+export const WEBFLOW_MCP_COMPATIBILITY = ">=2.0.1 <3.0.0" as const;
+export const WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION = 1 as const;
+export const WEBFLOW_INSTRUCTION_ARCHIVE_PATH =
+  ".slicemedia/agent-kit/webflow-agent-instructions.zip" as const;
+export const WEBFLOW_INSTRUCTION_MANIFEST_PATH =
+  ".slicemedia/agent-kit/webflow-agent-instructions.manifest.json" as const;
+export const WEBFLOW_SITE_RULE_FILES = ["webflow-site.md"] as const;
+
+export interface WebflowInstructionPackFile {
+  path: string;
+  sha256: string;
+}
+
+export interface WebflowInstructionPackManifest {
+  schemaVersion: typeof WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION;
+  product: "@slicemedia/agent-kit";
+  version: string;
+  surface: typeof WEBFLOW_SITE_SURFACE;
+  webflowMcp: {
+    testedVersion: typeof WEBFLOW_MCP_VERSION;
+    compatibleRange: typeof WEBFLOW_MCP_COMPATIBILITY;
+  };
+  skills: Array<Pick<SkillMetadata, "name" | "description">>;
+  files: WebflowInstructionPackFile[];
+  archiveSha256: string;
+}
 
 export const ADAPTER_TARGETS = [
   "codex",
@@ -47,7 +79,7 @@ export type AdapterProfile = "workspace" | "project";
 export interface AdapterManifest {
   schemaVersion: 3;
   product: "@slicemedia/agent-kit";
-  webflowMcpVersion: "2.0.1";
+  webflowMcpVersion: typeof WEBFLOW_MCP_VERSION;
   source: "@slicemedia/agent-kit";
   profile: AdapterProfile;
   projectGuide: "WEBFLOW_PROJECT.md" | null;
@@ -86,6 +118,9 @@ const adapterPathScopes: Record<AdapterProfile, AdapterPathScopes> = {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const PROJECT_GUIDE = "WEBFLOW_PROJECT.md";
+// ZIP stores local date fields. Constructing the DOS epoch in local time keeps
+// every archive byte-stable across runs and host time zones.
+const WEBFLOW_ARCHIVE_MTIME = new Date(1980, 0, 1, 0, 0, 0);
 
 export function getAgentKitPaths(repoRoot = process.cwd()): AgentKitPaths {
   const resolvedRepoRoot = resolve(repoRoot);
@@ -102,15 +137,34 @@ function parseFrontmatter(source: string, directory: string): SkillMetadata {
   const block = source.match(/^---\n([\s\S]*?)\n---/u)?.[1];
   const name = block?.match(/^name:\s*(.+)$/mu)?.[1]?.trim();
   const description = block?.match(/^description:\s*(.+)$/mu)?.[1]?.trim();
-  const distribution =
-    block?.match(/^\s+distribution:\s*(.+)$/mu)?.[1]?.trim() ?? "all";
   if (!name || !description) {
     throw new Error(`Invalid SKILL.md frontmatter in ${directory}`);
   }
-  if (distribution !== "all" && distribution !== "local-only") {
-    throw new Error(`Invalid skill distribution in ${directory}`);
+  const rawSurfaces = block
+    ?.match(/^\s+surfaces:\s*\[([^\]]*)\]\s*$/mu)?.[1]
+    ?.split(",")
+    .map((surface) => surface.trim())
+    .filter(Boolean);
+  if (!rawSurfaces || rawSurfaces.length === 0) {
+    throw new Error(`Missing explicit skill surfaces in ${directory}`);
   }
-  return { name, description, directory, distribution };
+  const unknownSurfaces = rawSurfaces.filter(
+    (surface) => !SKILL_SURFACES.includes(surface as SkillSurface),
+  );
+  if (unknownSurfaces.length > 0) {
+    throw new Error(
+      `Invalid skill surfaces in ${directory}: ${unknownSurfaces.join(", ")}`,
+    );
+  }
+  const surfaces = SKILL_SURFACES.filter((surface) =>
+    rawSurfaces.includes(surface),
+  );
+  const distribution: SkillDistribution = surfaces.includes(
+    WEBFLOW_SITE_SURFACE,
+  )
+    ? "all"
+    : "local-only";
+  return { name, description, directory, surfaces, distribution };
 }
 
 export async function collectSkills(
@@ -203,6 +257,90 @@ function selectedTargets(
 
 function digest(value: Uint8Array): string {
   return createHash("sha256").update(value).digest("hex");
+}
+
+async function readPackageVersion(paths: AgentKitPaths): Promise<string> {
+  const source = JSON.parse(
+    await readFile(join(paths.packageRoot, "package.json"), "utf8"),
+  ) as { name?: unknown; version?: unknown };
+  if (
+    source.name !== "@slicemedia/agent-kit" ||
+    typeof source.version !== "string" ||
+    !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(source.version)
+  ) {
+    throw new Error("Agent Kit package metadata has no valid release version");
+  }
+  return source.version;
+}
+
+function webflowPackMetadataRule(version: string): string {
+  return `# Slice Media Agent Kit pack metadata
+
+- Pack schema: ${WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION}
+- Package: \`@slicemedia/agent-kit@${version}\`
+- Distribution surface: \`${WEBFLOW_SITE_SURFACE}\`
+- Tested Webflow MCP version: \`${WEBFLOW_MCP_VERSION}\`
+- Compatible Webflow MCP range: \`${WEBFLOW_MCP_COMPATIBILITY}\`
+
+This metadata identifies the imported instruction pack. It does not grant permission to change or publish a site. If the connected Webflow MCP version falls outside the compatible range, stop before mutation and request a reviewed Agent Kit update.
+`;
+}
+
+async function buildWebflowInstructionPack(
+  paths: AgentKitPaths,
+  skills: SkillMetadata[],
+): Promise<{
+  archive: Uint8Array;
+  manifest: WebflowInstructionPackManifest;
+}> {
+  const version = await readPackageVersion(paths);
+  const entries: Record<string, Uint8Array> = {};
+
+  for (const ruleFile of WEBFLOW_SITE_RULE_FILES) {
+    entries[`rules/${ruleFile}`] = await readFile(
+      join(paths.contentRoot, "rules", ruleFile),
+    );
+  }
+  entries["rules/00-agent-kit-pack.md"] = strToU8(
+    webflowPackMetadataRule(version),
+  );
+
+  const siteSkills = skills.filter((skill) =>
+    skill.surfaces.includes(WEBFLOW_SITE_SURFACE),
+  );
+  for (const skill of siteSkills) {
+    await addMarkdownEntries(
+      entries,
+      skill.directory,
+      join("skills", skill.name),
+    );
+  }
+
+  const sortedEntries = Object.entries(entries).sort(([left], [right]) =>
+    left < right ? -1 : left > right ? 1 : 0,
+  );
+  const files = sortedEntries.map(([path, value]) => ({
+    path,
+    sha256: digest(value),
+  }));
+  const archive = zipSync(Object.fromEntries(sortedEntries), {
+    level: 9,
+    mtime: WEBFLOW_ARCHIVE_MTIME,
+  });
+  const manifest: WebflowInstructionPackManifest = {
+    schemaVersion: WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION,
+    product: "@slicemedia/agent-kit",
+    version,
+    surface: WEBFLOW_SITE_SURFACE,
+    webflowMcp: {
+      testedVersion: WEBFLOW_MCP_VERSION,
+      compatibleRange: WEBFLOW_MCP_COMPATIBILITY,
+    },
+    skills: siteSkills.map(({ name, description }) => ({ name, description })),
+    files,
+    archiveSha256: digest(archive),
+  };
+  return { archive, manifest };
 }
 
 function resolveOwnedPath(root: string, path: string): string {
@@ -445,25 +583,12 @@ async function composeOutputs(
   }
 
   if (targets.includes("webflow")) {
-    const zipEntries: Record<string, Uint8Array> = {
-      [`rules/${profile === "project" ? "project" : "repository"}.md`]:
-        strToU8(repository),
-      "rules/browser-code.md": strToU8(browser),
-      "rules/handoff.md": strToU8(handoff),
-      "rules/operations.md": strToU8(operations),
-    };
-    for (const skill of skills) {
-      if (skill.distribution === "local-only") continue;
-      await addMarkdownEntries(
-        zipEntries,
-        skill.directory,
-        join("skills", skill.name),
-      );
-    }
+    const pack = await buildWebflowInstructionPack(paths, skills);
+    addOutput(outputs, WEBFLOW_INSTRUCTION_ARCHIVE_PATH, pack.archive);
     addOutput(
       outputs,
-      join(".slicemedia", "agent-kit", "webflow-agent-instructions.zip"),
-      zipSync(zipEntries, { level: 9 }),
+      WEBFLOW_INSTRUCTION_MANIFEST_PATH,
+      `${JSON.stringify(pack.manifest, null, 2)}\n`,
     );
   }
 
@@ -500,7 +625,7 @@ export async function generateAdapters(
   const manifest: AdapterManifest = {
     schemaVersion: 3,
     product: "@slicemedia/agent-kit",
-    webflowMcpVersion: "2.0.1",
+    webflowMcpVersion: WEBFLOW_MCP_VERSION,
     source: "@slicemedia/agent-kit",
     profile,
     projectGuide: profile === "project" ? PROJECT_GUIDE : null,

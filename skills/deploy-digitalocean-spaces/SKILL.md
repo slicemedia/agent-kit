@@ -1,6 +1,8 @@
 ---
 name: deploy-digitalocean-spaces
 description: Explicitly plan and apply version-preserving, content-addressed project-bundle deployment through the optional DigitalOcean Spaces package. Use only when the generated project selected that capability and the user directly asks to deploy its built artifacts.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Deploy DigitalOcean Spaces

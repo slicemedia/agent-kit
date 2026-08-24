@@ -12,12 +12,20 @@ import { tmpdir } from "node:os";
 import { dirname, join, matchesGlob } from "node:path";
 
 import { unzipSync } from "fflate";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   ADAPTER_TARGETS,
   collectSkills,
   generateAdapters,
+  getAgentKitPaths,
+  WEBFLOW_INSTRUCTION_ARCHIVE_PATH,
+  WEBFLOW_INSTRUCTION_MANIFEST_PATH,
+  WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION,
+  WEBFLOW_MCP_COMPATIBILITY,
+  WEBFLOW_MCP_VERSION,
+  WEBFLOW_SITE_SURFACE,
+  type WebflowInstructionPackManifest,
 } from "./generate.js";
 import { validateAdapters } from "./validate.js";
 
@@ -41,6 +49,19 @@ async function exists(path: string): Promise<boolean> {
 
 const temporaryProjects = new Set<string>();
 
+const EXPECTED_WEBFLOW_SITE_SKILLS = [
+  "audit-webflow-client-first",
+  "build-webflow-with-client-first",
+  "diagnose-webflow-layout",
+  "edit-webflow-cms-safely",
+  "edit-webflow-designer-safely",
+  "inspect-webflow-site",
+  "manage-webflow-agent-instructions",
+  "publish-webflow-staging",
+  "review-webflow-accessibility",
+  "test-webflow-staging",
+] as const;
+
 async function temporaryProject(prefix: string): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), prefix));
   temporaryProjects.add(root);
@@ -58,10 +79,11 @@ afterEach(async () => {
 describe("agent adapter generation", () => {
   it("discovers every focused canonical skill", async () => {
     const skills = await collectSkills();
-    expect(skills).toHaveLength(24);
+    expect(skills).toHaveLength(25);
     expect(skills.map((skill) => skill.name)).toEqual(
       expect.arrayContaining([
         "audit-webflow-class-cleanup",
+        "audit-webflow-client-first",
         "audit-webflow-performance",
         "build-webflow-motion",
         "build-webflow-with-client-first",
@@ -81,6 +103,94 @@ describe("agent adapter generation", () => {
       skills.find((skill) => skill.name === "test-webflow-local-development")
         ?.distribution,
     ).toBe("local-only");
+    expect(
+      skills.find((skill) => skill.name === "inspect-webflow-site")?.surfaces,
+    ).toContain(WEBFLOW_SITE_SURFACE);
+    expect(
+      skills
+        .filter((skill) => skill.surfaces.includes(WEBFLOW_SITE_SURFACE))
+        .map((skill) => skill.name),
+    ).toEqual(EXPECTED_WEBFLOW_SITE_SKILLS);
+    for (const localSkill of [
+      "author-webflow-addon",
+      "build-webflow-slider",
+      "configure-agent-user-profile",
+      "deploy-digitalocean-spaces",
+      "test-webflow-local-development",
+    ]) {
+      expect(
+        skills.find((skill) => skill.name === localSkill)?.surfaces,
+      ).toEqual(["local-agent"]);
+    }
+  });
+
+  it.each([
+    ["missing", ""],
+    ["unknown", "metadata:\n  surfaces: [local-agent, remote-deployer]\n"],
+  ])("fails closed for %s skill surface metadata", async (_case, metadata) => {
+    const root = await temporaryProject("slicemedia-agent-kit-surfaces-");
+    const skillDirectory = join(root, "skills", "example-skill");
+    await mkdir(skillDirectory, { recursive: true });
+    await writeFile(
+      join(skillDirectory, "SKILL.md"),
+      `---\nname: example-skill\ndescription: Example skill for metadata validation.\n${metadata}---\n\n# Example\n`,
+    );
+    const paths = {
+      ...getAgentKitPaths(root),
+      skillsRoot: join(root, "skills"),
+    };
+
+    await expect(collectSkills(paths)).rejects.toThrow(/skill surfaces/u);
+  });
+
+  it("builds a deterministic, versioned Webflow instruction pack", async () => {
+    const first = await temporaryProject("slicemedia-agent-kit-pack-a-");
+    const second = await temporaryProject("slicemedia-agent-kit-pack-b-");
+    await Promise.all([seedProject(first), seedProject(second)]);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-01-02T03:04:05Z"));
+      await generateAdapters(first, {
+        profile: "project",
+        targets: ["webflow"],
+      });
+      vi.setSystemTime(new Date("2027-11-12T13:14:15Z"));
+      await generateAdapters(second, {
+        profile: "project",
+        targets: ["webflow"],
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    const [firstArchive, secondArchive, firstManifest, secondManifest] =
+      await Promise.all([
+        readFile(join(first, WEBFLOW_INSTRUCTION_ARCHIVE_PATH)),
+        readFile(join(second, WEBFLOW_INSTRUCTION_ARCHIVE_PATH)),
+        readFile(join(first, WEBFLOW_INSTRUCTION_MANIFEST_PATH), "utf8"),
+        readFile(join(second, WEBFLOW_INSTRUCTION_MANIFEST_PATH), "utf8"),
+      ]);
+    expect(firstArchive).toEqual(secondArchive);
+    expect(firstManifest).toBe(secondManifest);
+
+    const pack = JSON.parse(firstManifest) as WebflowInstructionPackManifest;
+    const packageMetadata = JSON.parse(
+      await readFile(
+        join(getAgentKitPaths().packageRoot, "package.json"),
+        "utf8",
+      ),
+    ) as { version: string };
+    expect(pack.version).toBe(packageMetadata.version);
+    expect(pack.skills.map((skill) => skill.name)).toEqual(
+      EXPECTED_WEBFLOW_SITE_SKILLS,
+    );
+    const metadataRule = new TextDecoder().decode(
+      unzipSync(firstArchive)["rules/00-agent-kit-pack.md"],
+    );
+    expect(metadataRule).toContain(
+      `@slicemedia/agent-kit@${packageMetadata.version}`,
+    );
+    expect(metadataRule).toContain(WEBFLOW_MCP_COMPATIBILITY);
   });
 
   it("generates only selected project adapters and a neutral guide", async () => {
@@ -229,48 +339,57 @@ describe("agent adapter generation", () => {
     ).toBe(false);
 
     const archiveEntries = Object.keys(
-      unzipSync(
-        await readFile(
-          join(
-            root,
-            ".slicemedia",
-            "agent-kit",
-            "webflow-agent-instructions.zip",
-          ),
-        ),
-      ),
+      unzipSync(await readFile(join(root, WEBFLOW_INSTRUCTION_ARCHIVE_PATH))),
     );
-    expect(archiveEntries).toContain("rules/project.md");
-    expect(archiveEntries).toContain("rules/handoff.md");
-    expect(archiveEntries).toContain(
-      "skills/manage-webflow-attributes/SKILL.md",
-    );
-    expect(archiveEntries).toContain(
-      "skills/build-webflow-with-client-first/SKILL.md",
-    );
+    expect(archiveEntries).toContain("rules/00-agent-kit-pack.md");
+    expect(archiveEntries).toContain("rules/webflow-site.md");
+    expect(archiveEntries).not.toContain("rules/project.md");
+    expect(archiveEntries).not.toContain("rules/repository.md");
+    expect(archiveEntries).not.toContain("rules/browser-code.md");
+    expect(archiveEntries).not.toContain("rules/handoff.md");
+    expect(archiveEntries).not.toContain("rules/operations.md");
+    for (const siteSkill of EXPECTED_WEBFLOW_SITE_SKILLS) {
+      expect(archiveEntries).toContain(`skills/${siteSkill}/SKILL.md`);
+    }
     expect(archiveEntries).toContain(
       "skills/build-webflow-with-client-first/references/client-first-conventions.md",
     );
-    for (const focusedSkill of [
-      "audit-webflow-class-cleanup",
-      "audit-webflow-performance",
-      "build-webflow-motion",
-      "diagnose-webflow-layout",
-      "integrate-finsweet-attributes",
-      "migrate-content-to-webflow-cms",
-    ]) {
-      expect(archiveEntries).toContain(`skills/${focusedSkill}/SKILL.md`);
+    const allSkills = await collectSkills();
+    for (const excludedSkill of allSkills
+      .map((skill) => skill.name)
+      .filter(
+        (skill) =>
+          !EXPECTED_WEBFLOW_SITE_SKILLS.includes(
+            skill as (typeof EXPECTED_WEBFLOW_SITE_SKILLS)[number],
+          ),
+      )) {
+      expect(
+        archiveEntries.some((entry) =>
+          entry.startsWith(`skills/${excludedSkill}/`),
+        ),
+      ).toBe(false);
     }
-    expect(archiveEntries).not.toContain(
-      "skills/test-webflow-local-development/SKILL.md",
-    );
-    expect(
-      archiveEntries.some((entry) =>
-        entry.startsWith("skills/configure-agent-user-profile/"),
-      ),
-    ).toBe(false);
     expect(archiveEntries).not.toContain("rules/local-user-profile.md");
     expect(archiveEntries.every((entry) => entry.endsWith(".md"))).toBe(true);
+
+    const packManifest = JSON.parse(
+      await readFile(join(root, WEBFLOW_INSTRUCTION_MANIFEST_PATH), "utf8"),
+    ) as WebflowInstructionPackManifest;
+    expect(packManifest).toMatchObject({
+      schemaVersion: WEBFLOW_INSTRUCTION_PACK_SCHEMA_VERSION,
+      product: "@slicemedia/agent-kit",
+      surface: WEBFLOW_SITE_SURFACE,
+      webflowMcp: {
+        testedVersion: WEBFLOW_MCP_VERSION,
+        compatibleRange: WEBFLOW_MCP_COMPATIBILITY,
+      },
+    });
+    expect(packManifest.skills.map((skill) => skill.name)).toEqual(
+      EXPECTED_WEBFLOW_SITE_SKILLS,
+    );
+    expect(packManifest.files.map((file) => file.path)).toEqual(
+      [...archiveEntries].sort(),
+    );
 
     const cursorOperations = await readFile(
       join(root, ".cursor", "rules", "20-operations.mdc"),
@@ -286,7 +405,7 @@ describe("agent adapter generation", () => {
     ).toBe(true);
     await expect(validateAdapters(root)).resolves.toMatchObject({
       ok: true,
-      checkedSkills: 24,
+      checkedSkills: 25,
     });
   });
 
@@ -384,7 +503,7 @@ describe("agent adapter generation", () => {
     ).toBe(false);
     await expect(validateAdapters(root)).resolves.toMatchObject({
       ok: true,
-      checkedSkills: 24,
+      checkedSkills: 25,
     });
   });
 
@@ -590,7 +709,10 @@ describe("agent adapter generation", () => {
           ".github/instructions/",
           ".github/skills/",
         ],
-        webflow: [".slicemedia/agent-kit/webflow-agent-instructions.zip"],
+        webflow: [
+          WEBFLOW_INSTRUCTION_ARCHIVE_PATH,
+          WEBFLOW_INSTRUCTION_MANIFEST_PATH,
+        ],
       };
       expect(
         manifest.files.some((file) =>

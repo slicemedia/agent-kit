@@ -1,6 +1,8 @@
 ---
 name: edit-webflow-cms-safely
 description: Explicitly plan and perform bounded Webflow CMS record changes with schema inspection, conflict handling, localization checks, read-back, and receipts. Use only when the user directly asks to create, update, publish, unpublish, or delete CMS content.
+metadata:
+  surfaces: [local-agent, webflow-site]
 ---
 
 # Edit Webflow CMS Safely
@@ -9,6 +11,8 @@ Webflow MCP version: 2.0.1.
 
 Use the official `data_cms_tool`. Inspection alone never authorizes a write.
 
+Call `webflow_guide_tool` before any other Webflow tool. If the returned guide and callable schema conflict, stop the affected operation and report the mismatch instead of guessing.
+
 ## Workflow
 
 1. Identify the exact site, collection, locale, records, fields, references, and requested draft or publication state. Read relevant site Agent Instructions first.
@@ -16,7 +20,7 @@ Use the official `data_cms_tool`. Inspection alone never authorizes a write.
 3. Detect duplicates and conflicts by stable ID and unique fields. Validate required fields, types, slugs, option values, references, multi-references, and current locale support. Exclude every unresolved conflicted item from the write plan; do not mutate it until the conflict is resolved.
 4. Produce a redacted plan with exact before/after values, unchanged protected fields, batch boundaries, risk tier, and expected publication state. Make repeated application idempotent.
 5. For a bulk, destructive, schema-dependent, or otherwise high-risk batch, require a manually confirmed Webflow restore point or an explicit recorded waiver. Explain that restore can affect CMS state and is not an item-level undo.
-6. Require explicit confirmation for that exact plan before calling a create, update, publish, unpublish, or delete action.
+6. Require explicit confirmation for the exact create, update, or delete plan before applying it. Treat publish or unpublish as a separate plan and require a second explicit confirmation immediately before that publication action; never combine it with draft-edit confirmation.
 7. Apply bounded batches. Stop automatic continuation after partial failure; do not retry ambiguous writes.
 8. Re-read every affected item and emit a receipt containing successes, failures, conflicts, preserved fields, recovery checkpoint, and exact draft/published state. Add an editor-facing handoff naming the collection, locales, affected item scope, editable fields, shared template dependencies, and whether future edits affect one item or the collection model. Publication is a separate operation and must never be inferred.
 

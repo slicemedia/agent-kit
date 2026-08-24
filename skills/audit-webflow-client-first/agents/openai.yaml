@@ -1,0 +1,12 @@
+interface:
+  display_name: "Audit Webflow Client-First"
+  short_description: "Audit Client-First alignment without changes"
+  default_prompt: "Use $audit-webflow-client-first to audit this Webflow site's Client-First alignment read-only, distinguish documented conventions from optional choices, and state unverified areas."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "webflow"
+      description: "Official Webflow MCP server"
+      transport: "streamable_http"
+      url: "https://mcp.webflow.com/mcp"

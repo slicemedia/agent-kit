@@ -1,6 +1,8 @@
 ---
 name: translate-figma-to-webflow
 description: Translate a Figma design into a Webflow-first component, class, responsive, CMS, and interaction plan. Use when implementing or estimating Figma frames in Webflow while preserving native editing and accessibility.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Translate Figma to Webflow
