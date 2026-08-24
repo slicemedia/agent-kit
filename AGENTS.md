@@ -9,6 +9,8 @@ second manually maintained instruction source.
 - Keep public project targets limited to Codex, Claude, Cursor, Copilot, and Webflow Agent Instructions.
 - Preserve unknown consumer files. Generation may replace or remove only recorded Agent Kit outputs; `--force` requires deliberate review.
 - Keep the Codex plugin skills-only. Use the official Webflow MCP server and do not bundle, proxy, or rename it.
+- Treat `metadata.surfaces` as a security and capability boundary. A skill enters the Webflow-native pack only through an explicit `webflow-site` allowlist; repository, package, deployment, credential, and local-machine workflows remain `local-agent` only.
+- Keep the Webflow ZIP limited to site-safe Markdown rules and skills. Its versioned sidecar manifest and in-pack metadata must describe the canonical package and Webflow MCP compatibility deterministically.
 - Keep Webflow referential in descriptions, not in the product name. Write the brand as “Slice Media” in prose and `slicemedia` in machine identifiers.
 - Remote writes and publishing belong to explicit Webflow MCP workflows, never to this package or CLI.
 

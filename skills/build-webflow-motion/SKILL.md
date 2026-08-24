@@ -1,6 +1,8 @@
 ---
 name: build-webflow-motion
 description: Choose, design, implement, or review accessible Webflow motion using CSS, native Webflow Interactions, or project-owned GSAP. Use when motion ownership, responsive behavior, lifecycle cleanup, or scroll geometry needs an explicit plan.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Build Webflow Motion

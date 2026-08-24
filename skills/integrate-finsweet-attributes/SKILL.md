@@ -1,6 +1,8 @@
 ---
 name: integrate-finsweet-attributes
 description: Plan, integrate, audit, or debug Finsweet Attributes solutions in Webflow when a requested behavior fits Attributes or an existing fs-* setup needs work. Do not use for Client-First styling, Finsweet Components, or Slice Media DevKit addon authoring.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Integrate Finsweet Attributes

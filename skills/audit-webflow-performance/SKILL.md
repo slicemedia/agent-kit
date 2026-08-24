@@ -1,6 +1,8 @@
 ---
 name: audit-webflow-performance
 description: Audit Webflow page performance and attribute costs to platform settings, assets, fonts, DOM and interactions, third-party scripts, or the site-owned project bundle. Use for Core Web Vitals diagnosis, regression analysis, or performance prioritization.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Audit Webflow Performance

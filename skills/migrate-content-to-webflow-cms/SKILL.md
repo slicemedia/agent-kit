@@ -1,6 +1,8 @@
 ---
 name: migrate-content-to-webflow-cms
 description: Plan and execute a bounded, draft-first migration from an identified content source into Webflow CMS with schema, locale, reference, asset, rich-text, SEO, fidelity, and recovery controls. Use only when the user directly asks to migrate content into Webflow CMS.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Migrate Content to Webflow CMS

@@ -52,7 +52,36 @@ machine-readable target list.
 
 Focused skills are generated into each selected local agent's supported project directory:
 `.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, or `.github/skills/`. The Webflow target
-receives a Markdown-only Agent Instructions ZIP; local-only workflows are excluded from it.
+receives a curated Markdown-only Agent Instructions ZIP plus a local integrity manifest. Only
+workflows that are safe and useful with Webflow access enter that archive; repository, package,
+local-development, slider, and deployment workflows remain local-agent guidance.
+
+## Webflow-native Agent Instructions
+
+Generate the site pack without installing another ChatGPT plugin or MCP server:
+
+```sh
+pnpm exec slicemedia-agent-kit generate \
+  --root . \
+  --profile project \
+  --targets webflow
+```
+
+This creates `.slicemedia/agent-kit/webflow-agent-instructions.zip` and a sidecar manifest containing
+the Agent Kit version, tested Webflow MCP version, archive digest, file digests, and included skill
+allowlist. Review the archive, then import it through Webflow's Instructions panel. The imported
+rules and skills stay with the site and can be read by Webflow's AI Assistant and external agents
+connected through the official Webflow MCP server. A Webflow Shared Library can distribute reviewed
+instructions across multiple sites.
+
+The CLI never writes instructions to a remote site. Existing site instructions must be inspected and
+diffed before an import or MCP update, unknown instructions must be preserved, and every mutation
+still requires the focused workflow's confirmation. A useful first request in a new agent session is:
+“Read this site's Agent Instructions, then use the relevant skill.”
+
+The previous skills-only Slice Media Webflow Companion plugin is retired in favor of this site-native
+delivery. Local Codex, Claude, Cursor, and Copilot adapters remain separate because they can also work
+with repositories, package managers, build tools, and local project configuration.
 
 ## Runtime and platform support
 
@@ -84,13 +113,17 @@ An exact version such as `0.1.0` identifies immutable package contents. npm's mo
 `latest` dist-tags select which already-published version is the active candidate or general-use
 release; the tags are not semantic versions themselves.
 
-## Optional Client-First workflow
+## Optional Client-First workflows
 
 Agent Kit includes `build-webflow-with-client-first` for projects that explicitly select or already
 use Finsweet Client-First. The skill plans semantic page structure, class reuse, native Webflow
 components, CMS boundaries, variables, responsive behavior, and safe MCP application. It does not
 make Client-First a default, migrate another class system automatically, or install Finsweet
 Attributes or Finsweet Components.
+
+The separate `audit-webflow-client-first` skill is strictly read-only. It distinguishes documented
+conventions, recommended strategies, optional choices, and project-specific decisions; a site that
+uses another coherent methodology is not reported as noncompliant.
 
 For example, ask: “Use the existing Client-First conventions to inspect and plan this new Webflow
 page. Show the structure, class ledger, component/CMS decisions, and blast radius before any

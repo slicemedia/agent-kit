@@ -2,7 +2,7 @@
 name: test-webflow-local-development
 description: Test one local site bundle against real remote Webflow markup while diagnosing CORS, HMR, local-network access, caching, and version mismatches. Use for local browser-enhancement integration before staging; do not use to persist or publish development URLs.
 metadata:
-  distribution: local-only
+  surfaces: [local-agent]
 ---
 
 # Test Webflow Local Development

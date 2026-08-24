@@ -1,6 +1,8 @@
 ---
 name: manage-webflow-attributes
 description: Explicitly inspect, plan, and update neutral data-wft attributes on Webflow elements while preserving unrelated attributes and bindings. Use when connecting Designer markup to a Slice Media DevKit enhancement or auditing an existing behavior contract.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Manage Webflow Attributes

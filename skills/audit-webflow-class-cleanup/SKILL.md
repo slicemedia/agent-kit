@@ -1,6 +1,8 @@
 ---
 name: audit-webflow-class-cleanup
 description: Audit Webflow classes across site structure, components, CMS, custom code, local runtime code, interactions, and rendered pages, then plan a guarded cleanup. Use only when the user directly asks for a class-usage audit, class cleanup, or class removal.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Audit Webflow Class Cleanup

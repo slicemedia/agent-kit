@@ -1,6 +1,8 @@
 ---
 name: configure-webflow-forms
 description: Design progressive, accessible Webflow form enhancements and vendor-neutral submission integrations. Use for multi-step behavior, conditional fields, validation, consent, success/error handling, or CRM handoff planning.
+metadata:
+  surfaces: [local-agent]
 ---
 
 # Configure Webflow Forms
