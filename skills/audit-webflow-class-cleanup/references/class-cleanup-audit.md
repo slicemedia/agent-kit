@@ -31,8 +31,8 @@ A removal plan must include:
 
 1. The exact selector identities and combo-parent behavior; never enable implicit cascading removal.
 2. Fresh evidence covering every relevant surface, with `conditional` and `protected` entries excluded.
-3. A manual Webflow restore point confirmed by the user, or the user's explicit waiver after the missing recovery coverage and consequences are stated. A Webflow restore affects the site rather than rolling back one selector; never restore automatically.
-4. A distinct confirmation after the user sees the final set, coverage gaps, and validation plan.
+3. A new native Webflow restore point, created after all current changes are saved and confirmed in a new user reply, or the user's informed explicit waiver after the recovery gaps and consequences are stated. Existing, automatic, or historical backups, activity history, snapshots, and advance approvals do not count. A Webflow restore affects the site rather than rolling back one selector; never restore automatically.
+4. A separate final confirmation requested only after that recovery reply and immediately before the first write, after re-reading the target. The recovery reply cannot double as removal confirmation. Restart the gate if state or the final set changes; one gate covers only its unchanged bounded batch.
 5. A small batch and stop conditions for stale state, unexpected references, partial failure, or visual/behavioral regression.
 6. Read-back plus rendered verification before another batch. Do not publish as part of cleanup.
 

@@ -243,6 +243,27 @@ describe("agent adapter generation", () => {
       "utf8",
     );
     expect(designerSkill).toContain("Webflow MCP version: 2.0.1");
+    expect(designerSkill).toContain("separate final confirmation");
+    const cmsTrackingReference = await readFile(
+      join(
+        root,
+        ".agents",
+        "skills",
+        "edit-webflow-cms-safely",
+        "references",
+        "cms-agent-tracking.md",
+      ),
+      "utf8",
+    );
+    for (const field of [
+      "agent_generated_content",
+      "agent_edits",
+      "agent_handoff_note",
+      "agent_revisit",
+      "agent_resolve",
+    ]) {
+      expect(cmsTrackingReference).toContain(field);
+    }
     expect(
       await readFile(
         join(
@@ -353,6 +374,9 @@ describe("agent adapter generation", () => {
     }
     expect(archiveEntries).toContain(
       "skills/build-webflow-with-client-first/references/client-first-conventions.md",
+    );
+    expect(archiveEntries).toContain(
+      "skills/edit-webflow-cms-safely/references/cms-agent-tracking.md",
     );
     const allSkills = await collectSkills();
     for (const excludedSkill of allSkills

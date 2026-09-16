@@ -60,7 +60,7 @@ const mcpAware = new Set([
   "test-webflow-local-development",
 ]);
 
-const recoveryAware = new Set([
+const mutationGateAware = new Set([
   "audit-webflow-class-cleanup",
   "build-webflow-motion",
   "build-webflow-with-client-first",
@@ -68,10 +68,39 @@ const recoveryAware = new Set([
   "edit-webflow-cms-safely",
   "edit-webflow-designer-safely",
   "integrate-finsweet-attributes",
+  "manage-webflow-agent-instructions",
   "manage-webflow-attributes",
   "manage-webflow-custom-code",
   "migrate-content-to-webflow-cms",
 ]);
+
+const mutationGateChecks = [
+  [
+    "every Webflow-hosted mutation",
+    /(?:every|any)[^.\n]*Webflow-hosted mutation/iu,
+  ],
+  [
+    "a fresh native restore point",
+    /(?:fresh|new) native Webflow restore point/iu,
+  ],
+  ["an explicit waiver", /explicit(?:ly)?[^.\n]*waiv/iu],
+  ["a new user reply", /(?:new user reply|new reply)/iu],
+  ["a separate final confirmation", /separate final confirmation/iu],
+  [
+    "separation between recovery and write confirmation",
+    /(?:cannot|must not|may not)[^.\n]*(?:double|also|same reply|combine)/iu,
+  ],
+  [
+    "gate restart after plan or state drift",
+    /(?:restart|repeat)[^.\n]*(?:state|scope|plan)[^.\n]*(?:chang|stale)|(?:state|scope|plan)[^.\n]*(?:chang|stale)[^.\n]*(?:restart|repeat)/iu,
+  ],
+] as const;
+
+export function findMutationGateOmissions(source: string): string[] {
+  return mutationGateChecks
+    .filter(([, pattern]) => !pattern.test(source))
+    .map(([label]) => label);
+}
 
 const handoffAware = new Set([
   "audit-webflow-class-cleanup",
@@ -297,14 +326,13 @@ export async function validateAdapters(
         `${skill.name} must consult webflow_guide_tool before site-native work`,
       );
     }
-    if (
-      recoveryAware.has(skill.name) &&
-      (!source.toLowerCase().includes("restore point") ||
-        !source.toLowerCase().includes("waiver"))
-    ) {
-      errors.push(
-        `${skill.name} must include the high-risk restore-point or waiver checkpoint`,
-      );
+    if (mutationGateAware.has(skill.name)) {
+      const omissions = findMutationGateOmissions(source);
+      if (omissions.length > 0) {
+        errors.push(
+          `${skill.name} has an incomplete universal mutation gate: ${omissions.join(", ")}`,
+        );
+      }
     }
     if (
       handoffAware.has(skill.name) &&
@@ -314,17 +342,103 @@ export async function validateAdapters(
     }
   }
 
-  for (const ruleName of ["operations.md", "project.md", "repository.md"]) {
+  for (const ruleName of [
+    "operations.md",
+    "project.md",
+    "repository.md",
+    "webflow-site.md",
+  ]) {
     const source = await readFile(
       join(paths.contentRoot, "rules", ruleName),
       "utf8",
     );
-    if (
-      !source.toLowerCase().includes("restore point") ||
-      !source.toLowerCase().includes("waiver")
-    ) {
+    const omissions = findMutationGateOmissions(source);
+    if (omissions.length > 0) {
       errors.push(
-        `${ruleName} must include the high-risk restore-point or waiver checkpoint`,
+        `${ruleName} has an incomplete universal mutation gate: ${omissions.join(", ")}`,
+      );
+    }
+  }
+
+  const cmsSkill = await readFile(
+    join(paths.skillsRoot, "edit-webflow-cms-safely", "SKILL.md"),
+    "utf8",
+  );
+  const migrationSkill = await readFile(
+    join(paths.skillsRoot, "migrate-content-to-webflow-cms", "SKILL.md"),
+    "utf8",
+  );
+  const trackingReference = await readFile(
+    join(
+      paths.skillsRoot,
+      "edit-webflow-cms-safely",
+      "references",
+      "cms-agent-tracking.md",
+    ),
+    "utf8",
+  ).catch(() => "");
+  for (const field of [
+    "agent_generated_content",
+    "agent_edits",
+    "agent_handoff_note",
+    "agent_revisit",
+    "agent_resolve",
+  ]) {
+    if (!trackingReference.includes(field)) {
+      errors.push(`CMS agent-tracking guidance omits ${field}`);
+    }
+  }
+  for (const phrase of [
+    "continue without it",
+    "Write tracking values only after explicit acceptance",
+    "Never create a missing tracking field",
+    "numeric-suffixed",
+    "untrusted content",
+    "preserve the field until the user explicitly approves clearing it",
+    "never enable a partial tracking set silently",
+  ]) {
+    if (!trackingReference.includes(phrase)) {
+      errors.push(`CMS agent-tracking guidance omits: ${phrase}`);
+    }
+  }
+  for (const [name, source] of [
+    ["edit-webflow-cms-safely", cmsSkill],
+    ["migrate-content-to-webflow-cms", migrationSkill],
+  ] as const) {
+    for (const phrase of [
+      "cms-agent-tracking.md",
+      "all configured locales",
+      "recommended default",
+    ]) {
+      if (!source.includes(phrase)) {
+        errors.push(`${name} omits CMS safety contract: ${phrase}`);
+      }
+    }
+    if (!source.includes("silently") || !source.includes("primary-only")) {
+      errors.push(
+        `${name} omits CMS safety contract: no silent primary-only fallback`,
+      );
+    }
+  }
+  for (const phrase of [
+    "re-read the site's locale list",
+    "separately authorized direct Data API workflow",
+    "does not publish or unpublish CMS items",
+  ]) {
+    if (!cmsSkill.includes(phrase)) {
+      errors.push(
+        `edit-webflow-cms-safely omits fail-closed behavior: ${phrase}`,
+      );
+    }
+  }
+  for (const phrase of [
+    "re-check the source inventory and checksums",
+    "re-read the target locale list",
+    "CMS item-level publish/unpublish are not included",
+  ]) {
+    if (!migrationSkill.includes(phrase)) {
+      errors.push(
+        `migrate-content-to-webflow-cms omits fail-closed behavior: ${phrase}`,
       );
     }
   }
