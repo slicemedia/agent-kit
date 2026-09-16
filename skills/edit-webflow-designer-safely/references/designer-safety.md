@@ -19,12 +19,14 @@ Classify risk from the inspected blast radius, not the user’s description alon
 - **Medium:** a bounded page-tree, binding, layout, or component-instance change whose dependencies and rollback state are fully captured.
 - **High:** deletion; bulk or schema changes; a shared component, class, variable, interaction, or global embed change; structural movement across many elements; a migration; or any operation with incomplete dependency visibility.
 
-For high risk, stop before mutation until one of these is recorded:
+Risk determines batch size and review depth, but not whether recovery preparation is required. Before every Webflow-hosted mutation, first present the exact bounded plan and stop until one of these is recorded in a new user reply:
 
-1. The user confirms Webflow shows all changes saved and a new manual restore point was created with a recognizable description; or
+1. The user confirms Webflow shows all changes saved and a new native manual restore point was created with a recognizable description; or
 2. The user explicitly waives the restore point after the plan explains the blast radius, uncertainty, and recovery limitations.
 
-Record only the confirmation or waiver and any user-supplied restore-point label. Do not invent a backup ID or claim an automatic backup is current. A screenshot or element snapshot helps verify appearance but cannot restore a site.
+Existing, automatic, or historical backups, activity history, screenshots, element snapshots, and advance approvals do not satisfy this checkpoint. Record only the confirmation or waiver and any user-supplied restore-point label. Do not invent a backup ID or claim an automatic backup is current.
+
+After the new reply, re-read affected state. If the state or plan changed, restart the recovery checkpoint. If unchanged, ask for a separate final confirmation immediately before the first write. The restore-point or waiver reply cannot double as write confirmation. One completed gate may cover only the unchanged bounded batch described in the plan.
 
 A restore point does not replace pre-state capture, small batches, read-back, staged verification, or activity receipts. Restoring a backup is a separate destructive decision: it can affect CMS content and identifiers, scheduled items, locales, comments, spam-protection settings, and integrations. Never restore automatically in response to a failed write.
 

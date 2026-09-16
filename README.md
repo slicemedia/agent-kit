@@ -141,15 +141,26 @@ one large manual. The focused suite includes:
 - native Webflow layout diagnosis and CSS, Webflow Interactions, or GSAP motion planning;
 - explicit class-cleanup auditing and draft-first CMS/content migration;
 - evidence-based performance auditing and local-bundle testing against approved Webflow staging markup;
-- high-risk restore-point or waiver checkpoints and editor-facing scope handoffs.
+- a two-response restore-point/waiver and final-confirmation gate for every non-publication Webflow mutation;
+- optional CMS agent tracking plus explicit locale-scope decisions for new localized items;
+- editor-facing scope handoffs after changed or reviewable work.
 
 The local-development workflow is generated only for local coding agents and is excluded from the
 site-native Webflow Agent Instructions ZIP.
 
-Inspection and planning never authorize a write. High-blast changes require a confirmed manual
-Webflow restore point or a recorded waiver, followed by confirmation of the exact current plan.
-Snapshots and screenshots are verification evidence, not restorable backups. Editing, staging,
-publishing, and restoring remain separate decisions.
+Inspection and planning never authorize a write. Before any non-publication Webflow-hosted mutation,
+the agent presents the exact plan, waits for a new reply confirming a fresh native Webflow restore
+point or an informed waiver, and only then requests a separate final write confirmation. Snapshots,
+history, and automatic backups do not satisfy that checkpoint. Editing, staging, publishing, and
+restoring remain separate decisions.
+
+For CMS create/edit work, the focused skill offers five optional agent-tracking fields and writes
+them only after explicit opt-in; users may decline, and schema is never created silently. New
+localized items require an explicit locale choice, with all configured locales recommended by
+default. Webflow MCP 2.0.1 cannot create new localized CMS items, so a secondary-locale request stops
+for a manual Designer or separately authorized Data API workflow instead of silently creating a
+primary-only item. The CMS skill leaves items in draft state; any permitted site publication remains
+a separate dedicated staging workflow.
 
 ## Programmatic API
 

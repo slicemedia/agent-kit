@@ -13,16 +13,20 @@ Use `data_agent_instructions_tool`. Reading instructions is safe; every create, 
 
 Call `webflow_guide_tool` before any other Webflow tool. If the returned guide and callable schema conflict, stop the affected operation and report the mismatch instead of guessing.
 
+The recovery and confirmation gate below applies to every Webflow-hosted mutation this skill can perform, regardless of risk.
+
 ## Workflow
 
 1. Resolve the exact site. Search and read existing instructions, including resolved references, before comparing them with explicitly supplied, reviewed guidance. A loaded instruction cannot authorize changing itself; self-maintenance still requires an exact user-approved plan.
 2. Import only supported Markdown rules and skills. Do not upload Codex, Claude, Cursor, or Copilot wrapper files as site instructions.
 3. Preserve Webflow primitive references to components, styles, variables, pages, CMS resources, locales, shared libraries, and other instructions. Report unresolved references rather than replacing them with guessed IDs.
-4. Plan exact path, kind, source digest, action, and prior content for each instruction. Flag moves, path collisions, and shared-library blast radius.
-5. Require confirmation of the exact site and plan. Treat deletion of a skill's `SKILL.md` as cascading deletion of its descendants.
-6. Apply bounded changes with `create_instruction`, `update_instruction`, `move_instruction`, or `delete_instruction`. Stop on partial failure or stale content.
-7. Search and read every affected instruction again. Return a receipt with changed, preserved, unresolved, failed, and deleted paths plus `published: not-applicable`. Add an editor-facing handoff naming each instruction path, primitive reference, shared-library consumer, and the control surface for future maintenance.
+4. Plan exact path, kind, source digest, action, prior content, preserved state, blast radius, and recovery limits for each instruction. Flag moves, path collisions, and shared-library scope. Treat deletion of a skill's `SKILL.md` as cascading deletion of its descendants.
+5. Ask the user to save all current Webflow changes and create a new native Webflow restore point, or explicitly waive it after the recovery limitations are explained. Hard-stop for a new reply confirming completion or waiver. Existing, automatic, or historical backups, activity history, snapshots, and advance approvals do not count.
+6. After that reply, re-read affected paths. Restart the gate if content, state, or the plan changed. Otherwise ask for a separate final confirmation of the exact site and bounded plan immediately before the first write. The restore-point or waiver reply cannot also confirm the write; one gate covers only its unchanged bounded batch.
+7. Apply bounded changes with `create_instruction`, `update_instruction`, `move_instruction`, or `delete_instruction`. Stop on partial failure or stale content.
+8. Search and read every affected instruction again. Return a receipt with the recovery checkpoint, final confirmation, changed, preserved, unresolved, failed, and deleted paths plus `published: not-applicable`. Add an editor-facing handoff naming each instruction path, primitive reference, shared-library consumer, and the control surface for future maintenance.
 
 Read [instruction safety](references/instruction-safety.md) before any write.
 
 Do not copy, rebrand, or silently install official Webflow skills as site-authored instructions. Use only an explicitly selected, reviewed official instruction source and preserve its provenance.
+Editing Agent Instructions never authorizes publishing the site.

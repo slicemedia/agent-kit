@@ -27,8 +27,9 @@ Do not combine layers on the same property or trigger without documenting owners
 4. Plan idempotent setup and complete teardown. For GSAP, scope selectors to each instance, collect animations and ScrollTriggers in a context or match-media lifecycle, and remove non-GSAP listeners, observers, timers, wrappers, inline state, and accessibility changes on destroy.
 5. Reconcile breakpoint and `prefers-reduced-motion` changes by reverting the previous state before applying the next. Reduced motion must provide a usable stable state, not merely a faster version of unsafe motion.
 6. Refresh measured scroll geometry only after layout-affecting fonts, media, CMS insertions, tabs, sliders, or accordions settle. Coalesce refreshes and avoid observer-refresh loops.
-7. Require confirmation before any Webflow write. Before a shared-class, component, variable, interaction, bulk, or otherwise high-blast write, require a confirmed manual Webflow restore point or an explicit recorded waiver; snapshots and read-back are not backups.
-8. Apply only the bounded approved change, read back Webflow-owned state, and test initialization, interruption, resize, preference changes, refresh, destroy, and reinitialize. Report owner, affected properties, accessibility behavior, restore-point status, evidence, and manual work.
+7. Before any Webflow-hosted mutation, present the exact bounded operations, target identifiers, blast radius, preserved state, and recovery limitations. Ask the user to save all current Webflow changes and create a new native Webflow restore point, or explicitly waive it after those limits are explained. Hard-stop for a new reply confirming completion or waiver. Existing, automatic, or historical backups, activity history, snapshots, read-back, and advance approvals do not count.
+8. After that reply, re-read the affected state. Restart the gate if state or the plan changed. Otherwise ask for a separate final confirmation immediately before the first write. The restore-point or waiver reply cannot double as write confirmation; one gate covers only its unchanged bounded batch.
+9. Apply only the bounded approved change, read back Webflow-owned state, and test initialization, interruption, resize, preference changes, refresh, destroy, and reinitialize. Report owner, affected properties, accessibility behavior, recovery checkpoint, final confirmation, evidence, and manual work. Editing never authorizes publishing.
 
 Read [the motion decision guide](references/motion-decision-guide.md) before mixing scroll-driven motion, responsive variants, or component/CMS scopes.
 
@@ -40,4 +41,4 @@ Current Webflow MCP cannot create or apply Webflow Interactions. It can inspect 
 
 Name the owning instance, component, CMS template/collection, page, or site and the exact control surface: Webflow style, native Interaction, or local GSAP/CSS module. Explain where future edits belong, which reused instances, breakpoints, properties, and scripts are also affected, and the verification, publication, restore-point, or waiver state.
 
-Stop on ambiguous ownership, missing reduced-motion behavior, conflicting transforms, unresolved shared scope, a high-blast write without a restore point or waiver, stale layout measurements, or unavailable manual capability.
+Stop on ambiguous ownership, missing reduced-motion behavior, conflicting transforms, unresolved shared scope, a Webflow write without its recovery checkpoint and separate final confirmation, stale layout measurements, or unavailable manual capability.
