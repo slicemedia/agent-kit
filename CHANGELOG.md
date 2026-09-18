@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- 4ec9703: Replace the broad Webflow adapter archive with a fail-closed, site-native Agent Instructions pack, add deterministic pack metadata and integrity validation, harden the canonical MCP workflows, and add a read-only Client-First audit skill.
+- 077e877: Require a native Webflow restore point or informed waiver plus a separate final confirmation before every remote mutation, add opt-in CMS agent-tracking guidance, and require explicit locale scope for localized CMS creation.
+
+### Patch Changes
+
+- Replace universal `src/main.ts`/single-bundle guidance with independent public addon entries and
+  optional project composition. Align generated browser rules and authoring, debugging, and local
+  testing skills with per-addon script tags, shared runtime registration, and public API handoff.
+
 This file records user-visible changes to Slice Media Agent Kit. The project follows semantic
 versioning while its public API develops through the `0.x` series.
 
