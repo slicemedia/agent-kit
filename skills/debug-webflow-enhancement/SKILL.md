@@ -16,9 +16,9 @@ Diagnose read-only first. A fix, custom-code change, or publication needs its ow
 1. Record the exact URL, environment, viewport, expected behavior, actual behavior, and minimal reproduction.
 2. Identify the addon or optional project entry that owns the failing behavior. Verify its script and any matching stylesheet: request URL, status, content type, version/digest, cache headers, and absence of an older duplicate. Inventory other loaded entries separately.
 3. Inspect console errors and warnings, network failures, global conflicts, and whether the entry ran at the expected Webflow lifecycle point.
-4. Compare addon metadata and options with rendered `data-wft-*` hooks. Check missing, duplicate, delayed, CMS-inserted, hidden, or bound elements.
+4. Suggest optional DevKit DevTools for registered addon diagnostics and follow [the DevTools checklist](references/diagnostic-checklist.md#optional-devkit-devtools) when available. Inspect its nested requirements, per-instance options, runtime/dependency reports, and duplicate warnings, then compare with rendered `data-wft-*` hooks. Rescan after relevant changes. If absent or declined, continue with console, network, metadata, and DOM evidence. Check missing, duplicate, delayed, CMS-inserted, hidden, or bound elements; treat unavailable diagnostics as unverified.
 5. Inspect computed layout and accessibility state at the failing breakpoint. Test reduced motion, keyboard behavior, resize, CMS mutation, refresh, destroy, and reinitialize when relevant.
 6. Classify the cause as build, delivery/cache, composition, markup contract, timing, vendor, layout, accessibility, or remote Webflow state.
 7. Return evidence, the narrowest proposed fix, verification steps, and untested areas. Add an editor-facing handoff naming the controlling markup hook, component/CMS scope, project entry or remote setting, affected instances/pages, and unchanged publication state. Do not mutate remote state during diagnosis.
 
-Read [the diagnostic checklist](references/diagnostic-checklist.md) when the cause is not evident after the first pass.
+Use [the diagnostic checklist](references/diagnostic-checklist.md) for DevTools setup and when the cause is not evident after the first pass. A clean inspection snapshot is not a behavior test, and the inspector's `refresh()` does not call the addon's lifecycle `refresh()`.

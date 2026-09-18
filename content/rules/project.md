@@ -23,6 +23,38 @@ modules must not run until deliberately imported by the entry that needs them.
 - Use synthetic local fixtures. Never copy production content into reusable examples.
 - End completed or reviewable work with an editor-facing handoff: exact scope, control surface for future edits, affected consumers, changed/preserved/unverified state, validation, publication state, and recovery limitations.
 
+## DevTools for addon debugging
+
+When investigating addon behavior, missing attributes, configuration, or duplicate scripts,
+proactively suggest the optional on-page DevTools inspector and explain which evidence it provides.
+Continue with console, network, and DOM inspection if it is unavailable or the user declines.
+
+Check for `window.DevKitDevTools`. DevKit's **On-page DevTools inspector** setup choice installs
+the optional `@slicemedia/devtools` package and creates
+`src/addons/devtools.ts`, which builds to `dist/addons/devtools.js`; the entry or hosted script still
+needs to be loaded on the page. It can be added later by installing `@slicemedia/devtools`, importing
+`createDevTools` from it, and calling `init()`. Check compatibility with the installed DevKit version;
+the inspector is optional, not a prerequisite for debugging.
+
+The loaded inspector activates automatically on `webflow.io` unless explicitly disabled. On
+localhost and custom domains, use the console:
+
+```js
+window.DevKitDevTools.enabled = true;
+window.DevKitDevTools.open();
+```
+
+Review addon versions, the nested requirements tree, per-instance options, runtime/dependency
+reports, and duplicate warnings. Use **Rescan** or `window.DevKitDevTools.refresh()` after markup,
+CMS, options, viewport, or lifecycle changes; this does not call addon lifecycle methods or fix
+attributes. Disable it with `window.DevKitDevTools.enabled = false`; explicit activation choices
+are remembered per origin.
+
+Findings cover declared contracts and available runtime reports. Unregistered code cannot be
+discovered reliably, unclaimed hooks are informational, and unavailable diagnostics remain
+unverified. A clean scan or `ready` lifecycle does not prove behavior works. Reproduce the actual
+interaction and use the debugging skill for evidence and verification.
+
 ## Common commands
 
 - `pnpm dev` — run the project's local development server.

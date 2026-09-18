@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+### Patch Changes
+
+- Teach generated project and workspace guidance to suggest optional DevKit DevTools for addon debugging. Document activation, rescanning, diagnostic limits, and the shared inspection contract in the debugging, authoring, and testing skills while keeping Webflow-native staging guidance limited to an already loaded inspector.
+
 ## 0.2.2
 
 ### Patch Changes
