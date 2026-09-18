@@ -9,7 +9,8 @@
 
 ## Composition and lifecycle
 
-- Imported integration and explicit initialization from `src/main.ts`
+- Imported integration and explicit initialization from the owning `src/addons/` entry or deliberately configured project entry
+- Correct per-addon script/stylesheet tag, shared runtime registration, and public API availability
 - DOM readiness and Webflow lifecycle timing
 - Duplicate initialization, missing cleanup, and stale observers
 - Vendor version and required vendor CSS

@@ -1,6 +1,6 @@
 ---
 name: test-webflow-local-development
-description: Test one local site bundle against real remote Webflow markup while diagnosing CORS, HMR, local-network access, caching, and version mismatches. Use for local browser-enhancement integration before staging; do not use to persist or publish development URLs.
+description: Test local addon or optional project scripts against real remote Webflow markup while diagnosing CORS, HMR, local-network access, caching, and version mismatches. Use for local browser-enhancement integration before staging; do not use to persist or publish development URLs.
 metadata:
   surfaces: [local-agent]
 ---
@@ -11,13 +11,13 @@ Webflow MCP version: 2.0.1.
 
 This skill is local-only because site-native Webflow Agent Instructions cannot access the developer's repository or dev server.
 
-Load exactly one local project entry against an explicitly identified remote Webflow page. Prefer session-only browser injection or request override so remote Webflow state remains unchanged.
+Load only the selected local addon or project entries against an explicitly identified remote Webflow page, once per entry. Prefer session-only browser injection or request override so remote Webflow state remains unchanged.
 
 ## Workflow
 
 1. Record the remote staging/preview URL, local entry URL, fixed port, dev-server and Vite versions when applicable, expected bundle version, target markup hooks, and baseline behavior without the local entry. Stop if the only available target is a production custom domain.
 2. Confirm the dev-server version is supported and not affected by a current applicable security advisory. Start it on loopback unless another interface is explicitly required. Allow only the exact remote origin for CORS, use a fixed/strict port, preserve HMR WebSocket origin/token protections, and expose only the endpoint the client needs. Never enable Vite's `legacy.skipWebSocketTokenCheck`; use a patched integration or disable HMR and reload instead.
-3. Inject the local entry for the current browser session. Remove or suppress the hosted project bundle for that session so local and hosted copies cannot initialize together. Persisting a development script in Webflow requires a separate confirmed, staging-only plan with a removal step.
+3. Inject each selected local entry for the current browser session. Remove or suppress its matching hosted addon/project script for that session so local and hosted copies cannot initialize together; preserve unrelated scripts. Persisting a development script in Webflow requires a separate confirmed, staging-only plan with a removal step.
 4. Verify the script request status, content type, actual response, source map, `Origin`/CORS response, CSP result, and HMR WebSocket authorization separately. Record whether the browser uses a legacy Private Network Access preflight or current local/loopback-network permission behavior; do not treat CORS, WebSocket authorization, and local-network permission as interchangeable. If policy blocks the request, use an approved local certificate, narrow development-origin policy, or scoped tunnel; never disable browser security globally.
 5. Prove which code ran using a development-only version marker or digest. Disable cache while iterating, test a hard reload, and distinguish a stale browser/service-worker response from the current dev server.
 6. Test the real rendered markup: Webflow readiness, matching `data-wft-*` hooks, multiple/CMS instances, delayed content, breakpoints, reduced motion, errors, refresh, destroy, and reinitialize. Confirm each HMR update replaces behavior rather than stacking listeners or instances.
