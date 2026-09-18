@@ -14,7 +14,7 @@ Map design intent to maintainable Webflow structure rather than reproducing coor
 1. Inspect frames, components, variants, tokens, content states, responsive intent, and motion.
 2. Separate global tokens, reusable Webflow components, CMS-backed content, page composition, and optional code enhancements.
 3. Define semantic HTML, class strategy, grid/flex behavior, image treatment, breakpoints, and accessibility behavior.
-4. Prefer native Webflow layout, variables, components, CMS, and interactions.
+4. Prefer native Webflow layout, variables, components, CMS, and base styling. Honor the user's animation approach first; otherwise prefer GSAP addons for custom motion, with CSS for simple state effects and native Interactions when clearly sufficient and useful to maintain in Designer. Preserve existing animation ownership unless a migration is requested.
 5. Use `data-wft-*` only for behavior that needs a Slice Media DevKit enhancement. Keep site-specific values in project configuration.
 6. Produce an implementation map and QA checklist across breakpoints, content extremes, keyboard navigation, and reduced motion.
 7. Add an editor-facing handoff that maps each design decision to its Webflow variable, shared class, component definition or instance, CMS field, page composition, native interaction, or project enhancement; identify reuse scope, inferred details, remaining manual work, and publication state.

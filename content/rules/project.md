@@ -8,7 +8,8 @@ modules must not run until deliberately imported by the entry that needs them.
 
 ## Boundaries
 
-- Prefer native Webflow layout, components, CMS, forms, variables, and interactions before JavaScript.
+- Prefer Webflow-native layout, components, CMS, forms, variables, and base styling. Keep browser code focused on behavior attached to existing Webflow markup.
+- Honor the user's animation approach first. Prefer GSAP addons for custom animation work; use CSS for simple state effects or native Webflow Interactions when they are clearly sufficient and Designer ownership is useful. Choosing GSAP does not require proving that native Interactions are incapable. Preserve existing animation ownership unless changing it is part of the request.
 - Add behavior through explicit, scoped `data-wft-*` hooks. Do not rely on generated class names or guessed selectors.
 - Keep site IDs, domains, tokens, and deployment credentials in ignored environment files. Do not put secrets or project identifiers into reusable packages, fixtures, or AI instructions.
 - Inspect before changing Webflow. Before any non-publication Webflow-hosted mutation, present the exact bounded plan, affected identifiers, blast radius, preserved state, and recovery limits. Ask the user to create a new native Webflow restore point after all current changes are saved, or to explicitly waive it after those limits are explained, then stop for a new reply confirming completion or waiver. Existing or automatic backups, activity history, snapshots, and advance approvals do not count.

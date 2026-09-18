@@ -25,6 +25,6 @@ Read [the addon contract](references/addon-contract.md) before changing the publ
 ## Boundaries
 
 - Do not embed site IDs, domains, component identifiers, account IDs, client copy, project URLs, or fallback selectors.
-- Prefer native Webflow behavior where it meets the requirement.
+- Keep layout, content, and base styling Webflow-native. Prefer GSAP addons for custom animation work, honoring the user's chosen approach first; simple CSS effects and straightforward Designer-owned Interactions remain suitable alternatives. Do not require proof that native Interactions are incapable before authoring a requested GSAP addon.
 - Keep optional vendors outside core and add them only to projects that use them.
 - Do not change Webflow or publish as part of addon authoring without a separate explicit request.
