@@ -16,11 +16,12 @@ Build a neutral enhancement in the consuming project unless several independent 
 3. Define metadata first: stable name and version, description, attributes, typed default options, dependencies, placement, and entry point.
 4. Implement idempotent `init`, reconciling `refresh`, complete `destroy`, `setOptions`, and serializable `getState`. Use typed events where observable state helps diagnostics.
 5. Track every owned listener, observer, timer, vendor instance, generated node, and DOM mutation. Restore original state on destroy.
-6. Keep package and reusable-module imports inert. Create a consumer-owned browser entry at `src/addons/<name>.ts` or `src/addons/<name>/index.ts`; it explicitly initializes and registers the API, and builds to its own `dist/addons/<name>.js` with optional CSS. Use optional project entries only for deliberate composition. Expose small-script access through the shared window runtime and document lifecycle events and readiness.
+6. Keep package and reusable-module imports inert. Mark new consumer-owned browser entries with `.entry.ts` or `.entry.js` under `src/addons/`; optional category folders may nest. The entry explicitly initializes and registers the API and builds independently at the matching path under `dist/addons/`, with `.entry` removed and optional adjacent CSS. Keep entry names unique across folders. Check the installed CLI's supported conventions in older projects. Use optional project entries only for deliberate composition. Expose small-script access through the shared window runtime and document lifecycle events and readiness.
 7. Test missing and delayed DOM, multiple instances, CMS mutation, keyboard use, and destroy/reinitialize. Add breakpoint and reduced-motion cases when used.
 8. Return an editor-facing handoff that identifies the markup hooks, project options, source entry, individual local/production script and stylesheet tags, public API/events, affected instances/pages, tests completed, unverified cases, and `published: false`.
 
 Read [the addon contract](references/addon-contract.md) before changing the public lifecycle.
+Its entry-organization section also explains helper files, folder entries, and compatibility.
 
 ## Boundaries
 

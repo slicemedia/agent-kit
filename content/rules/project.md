@@ -2,7 +2,10 @@
 
 This project uses an AI-first browser-development setup around Webflow. Webflow owns editable
 structure and content; consumer-owned browser entries initialize enhancements explicitly. Each
-public addon under `src/addons/` builds to its own standalone script at `dist/addons/<name>.js`.
+public addon under `src/addons/` builds to its own standalone script under `dist/addons/`.
+Use `.entry.ts` / `.entry.js` for new browser entries; category folders may nest and are preserved
+in output URLs with `.entry` removed. Legacy flat-file and one-folder `index.ts` conventions keep
+their existing outputs. Check the installed CLI's supported conventions in older projects.
 Project entries are optional and compose only deliberately selected behavior. Optional integration
 modules must not run until deliberately imported by the entry that needs them.
 
