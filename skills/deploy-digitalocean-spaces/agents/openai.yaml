@@ -1,7 +1,7 @@
 interface:
   display_name: "Deploy DigitalOcean Spaces"
-  short_description: "Plan version-preserving Spaces deployment"
-  default_prompt: "Use $deploy-digitalocean-spaces to prepare and review a content-addressed, version-preserving DigitalOcean Spaces deployment plan."
+  short_description: "Plan stable or immutable Spaces deployment"
+  default_prompt: "Use $deploy-digitalocean-spaces to prepare and review a DigitalOcean Spaces deployment plan with stable URLs, exact replacement keys, and scoped CDN invalidation, or an explicitly selected immutable release."
 
 policy:
   allow_implicit_invocation: false

@@ -2,13 +2,18 @@
 
 This project uses an AI-first browser-development setup around Webflow. Webflow owns editable
 structure and content; consumer-owned browser entries initialize enhancements explicitly. Each
-public addon under `src/addons/` builds to its own standalone script at `dist/addons/<name>.js`.
+public addon under `src/addons/` builds to its own standalone script under `dist/addons/`.
+Use `.entry.ts` / `.entry.js` for new browser entries; category folders may nest and are preserved
+in output URLs with `.entry` removed. Legacy flat-file and one-folder `index.ts` conventions keep
+their existing outputs. Check the installed CLI's supported conventions in older projects.
 Project entries are optional and compose only deliberately selected behavior. Optional integration
 modules must not run until deliberately imported by the entry that needs them.
 
 ## Boundaries
 
-- Prefer native Webflow layout, components, CMS, forms, variables, and interactions before JavaScript.
+- Prefer Webflow-native layout, components, CMS, forms, variables, and base styling. Keep browser code focused on behavior attached to existing Webflow markup.
+- Honor the user's animation approach first. Prefer GSAP addons for custom animation work; use CSS for simple state effects or native Webflow Interactions when they are clearly sufficient and Designer ownership is useful. Choosing GSAP does not require proving that native Interactions are incapable. Preserve existing animation ownership unless changing it is part of the request.
+- Prefer Swiper for sliders and carousels, using the optional Slice Media Swiper Adapter where its lifecycle and CMS support fit. Honor an explicit user choice of native Webflow sliders or another implementation. Do not require native sliders to fail first, and preserve existing slider ownership unless migration is requested.
 - Add behavior through explicit, scoped `data-wft-*` hooks. Do not rely on generated class names or guessed selectors.
 - Keep site IDs, domains, tokens, and deployment credentials in ignored environment files. Do not put secrets or project identifiers into reusable packages, fixtures, or AI instructions.
 - Inspect before changing Webflow. Before any non-publication Webflow-hosted mutation, present the exact bounded plan, affected identifiers, blast radius, preserved state, and recovery limits. Ask the user to create a new native Webflow restore point after all current changes are saved, or to explicitly waive it after those limits are explained, then stop for a new reply confirming completion or waiver. Existing or automatic backups, activity history, snapshots, and advance approvals do not count.

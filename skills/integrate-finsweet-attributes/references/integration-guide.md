@@ -6,7 +6,7 @@ Reference snapshot: current Finsweet Attributes v2 and Webflow MCP documentation
 
 Choose one primary owner for each behavior:
 
-- Use native Webflow when its elements, CMS, forms, or interactions fully provide the behavior.
+- Use native Webflow when its elements, CMS, or forms fully provide the behavior. For custom animation, honor the user's approach and prefer GSAP addons; simple CSS effects and straightforward Designer-owned Interactions remain suitable alternatives.
 - Use Finsweet Attributes for a documented attribute-driven solution whose runtime and `fs-*` markup contract the project accepts.
 - Use Finsweet Components only through its separate Webflow app and commercial/service decision.
 - Use a Slice Media DevKit addon when the project needs site-owned code, a typed lifecycle, and a neutral `data-wft-*` contract.

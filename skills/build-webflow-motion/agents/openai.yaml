@@ -1,7 +1,7 @@
 interface:
   display_name: "Build Webflow Motion"
-  short_description: "Choose and build maintainable Webflow motion"
-  default_prompt: "Use $build-webflow-motion to choose the right motion layer and plan this Webflow animation."
+  short_description: "Build custom Webflow motion with GSAP addons"
+  default_prompt: "Use $build-webflow-motion to implement this custom animation as a GSAP addon by default, honor my chosen animation approach, and keep Webflow markup and base styles editable. Consider CSS or native Interactions for clearly suitable simple effects."
 
 dependencies:
   tools:

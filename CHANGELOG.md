@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.2
+
+### Patch Changes
+
+- 8186c49: Prefer GSAP addons for custom animation work across generated rules, motion authoring, addon
+  authoring, and related workflows. Honor explicit animation choices, keep markup and base styling
+  in Webflow, and preserve CSS and native Interactions for suitable simple effects. Remove the
+  requirement to prove native Interactions insufficient before choosing GSAP.
+- 4a34e71: Document marked browser entries, recursive addon organization, unique public names, helper-file boundaries, and preserved build/CDN paths. Keep legacy conventions available for older projects and use actual build manifests for deployment handoff.
+- 85e0793: Default slider work to Swiper while honoring explicit user choices. Document shared on-demand vendor delivery, window-load refresh diagnostics, and the actual stable Spaces deployment contract, including optional versioning, scoped invalidation, safe retries, and the distinction between stable embeds and version-pinned hosted registrations.
+
 ## 0.2.1
 
 ### Patch Changes
