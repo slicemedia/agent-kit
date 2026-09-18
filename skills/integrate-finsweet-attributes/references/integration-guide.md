@@ -39,7 +39,7 @@ The v2 global API queues callbacks by solution key and exposes solution lifecycl
 
 Before adding project code, inventory callbacks, hooks, observers, restarts, and listeners already attached to the solution. Make each project subscription idempotent and retain its cleanup. A broad mutation observer that repeatedly reloads or restarts Attributes risks duplicate listeners, lost state, and render loops.
 
-Define load order between Webflow initialization, the Attributes module, the site's IIFE, consent tooling, analytics, and any library that reads or mutates the same nodes. Treat a missing CDN response as a real failure mode and preserve usable native content where the chosen solution permits it.
+Define load order between Webflow initialization, the Attributes module, each selected addon or optional project script, consent tooling, analytics, and any library that reads or mutates the same nodes. Treat a missing CDN response as a real failure mode and preserve usable native content where the chosen solution permits it.
 
 ## Accessibility and staging checks
 

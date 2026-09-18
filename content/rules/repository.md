@@ -8,7 +8,7 @@ identifiers, and hosting choices.
 
 - Prefer Webflow-native layout, components, CMS, forms, variables, and interactions. Add browser code only where Webflow does not provide the required behavior.
 - Use neutral `data-wft-*` hooks. Never introduce client names, assets, URLs, site IDs, component IDs, credentials, copied production markup, or project fallback selectors.
-- Keep package ESM imports side-effect-free. A consumer's composition entry is the only place that selects and initializes browser behavior.
+- Keep package ESM imports side-effect-free. Each consumer-owned addon entry under `src/addons/` selects and initializes its own behavior and builds to an independent `dist/addons/<name>.js` with optional CSS. Project entries are optional and compose only deliberately selected behavior.
 - Make lifecycle initialization idempotent and destruction complete. Preserve DOM, attributes, accessibility state, and remote data that the code does not own.
 - Treat inspection, planning, recovery preparation, write confirmation, application, read-back, verification, and publishing as separate phases. Webflow writes and publishing require an explicit user request and the matching MCP skill.
 - Before any non-publication Webflow-hosted mutation, inspect current state and present the exact bounded plan, affected identifiers, blast radius, preserved state, and recovery limits. Then ask the user to create a new native Webflow restore point after all current changes are saved, or to explicitly waive it after those limits are explained. Stop for a new reply confirming completion or waiver; an earlier or automatic backup, activity history, visual snapshot, or advance approval does not satisfy this checkpoint.

@@ -1,7 +1,7 @@
 interface:
   display_name: "Audit Webflow Performance"
   short_description: "Trace Webflow performance issues by owner"
-  default_prompt: "Use $audit-webflow-performance to audit this Webflow page and separate platform, content, vendor, and project-bundle costs."
+  default_prompt: "Use $audit-webflow-performance to audit this Webflow page and separate platform, content, vendor, and individual addon or project script costs."
 
 dependencies:
   tools:

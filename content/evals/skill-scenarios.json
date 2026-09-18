@@ -194,14 +194,14 @@
     {
       "id": "performance-audit-positive",
       "category": "positive",
-      "prompt": "Audit the identified Webflow staging page for Core Web Vitals and separate Webflow assets, fonts, DOM, third-party scripts, and the local project bundle into evidence-backed causes.",
+      "prompt": "Audit the identified Webflow staging page for Core Web Vitals and separate Webflow assets, fonts, DOM, third-party scripts, and individual addon or optional project scripts into evidence-backed causes.",
       "expectedSkill": "audit-webflow-performance",
       "expectedAction": "invoke"
     },
     {
       "id": "local-development-positive",
       "category": "positive",
-      "prompt": "Test the local project bundle against the configured Webflow staging markup, diagnose CORS and HMR behavior, and prove no localhost script reference can remain in production.",
+      "prompt": "Test the selected local addon and optional project scripts against the configured Webflow staging markup, diagnose CORS and HMR behavior per entry, and prove no localhost script reference can remain in production.",
       "expectedSkill": "test-webflow-local-development",
       "expectedAction": "invoke"
     },

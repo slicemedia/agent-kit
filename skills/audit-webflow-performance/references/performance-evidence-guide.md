@@ -14,7 +14,7 @@ Reference snapshot: official sources reviewed 2026-08-21. Thresholds and platfor
 
 Run enough repeated tests to expose variance and report the aggregation method. Keep mobile and desktop results separate. If field data is unavailable because the page has insufficient traffic, say so and do not relabel lab data as field data.
 
-For CrUX, record the returned collection period, form factor, and whether the result is for the requested URL or only its origin. CrUX currently aggregates a rolling 28-day window, so inventory every release deployed during that period. Do not attribute the distribution to today's project bundle unless version-segmented RUM or another controlled source isolates it.
+For CrUX, record the returned collection period, form factor, and whether the result is for the requested URL or only its origin. CrUX currently aggregates a rolling 28-day window, so inventory every release deployed during that period. Do not attribute the distribution to the currently deployed addon or project scripts unless version-segmented RUM or another controlled source isolates their impact.
 
 ## Ownership inventory
 
@@ -32,7 +32,7 @@ Inspect excessive DOM depth/quantity, hidden duplicate content, large CMS lists,
 
 ### Third-party and project code
 
-Separate analytics, consent, embeds, tag managers, widgets, and other vendors by request initiator and execution. Attribute project-bundle cost through its requests, parsed modules/source maps, long tasks, listeners, observers, layout work, and controlled disablement. Check duplicate vendor/runtime copies and code that initializes on pages without matching markup.
+Separate analytics, consent, embeds, tag managers, widgets, and other vendors by request initiator and execution. Inventory every addon and optional project script separately, and attribute each script's cost through its requests, parsed modules/source maps, long tasks, listeners, observers, layout work, and controlled disablement. Check duplicate vendor/runtime copies and code that initializes on pages without matching markup.
 
 ## Core Web Vitals interpretation
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Test Webflow Local Development"
-  short_description: "Test a local bundle on real Webflow markup"
-  default_prompt: "Use $test-webflow-local-development to verify one local bundle against this remote Webflow page without changing production."
+  short_description: "Test local addon scripts on real Webflow markup"
+  default_prompt: "Use $test-webflow-local-development to verify the selected local addon or optional project scripts against this remote Webflow page, once per entry, without changing production."

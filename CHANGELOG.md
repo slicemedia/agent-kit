@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- Complete the standalone-addon documentation migration across repository rules, agent prompts,
+  local integration checklists, performance and debugging guidance, deployment instructions, and
+  related handoffs. Describe separate addon and optional project scripts consistently, verify each
+  selected entry independently, and preserve unrelated scripts when testing.
+
 ## 0.2.0
 
 ### Minor Changes

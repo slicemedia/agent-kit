@@ -140,7 +140,7 @@ one large manual. The focused suite includes:
 - Client-First page construction and optional Finsweet Attributes integration as separate choices;
 - native Webflow layout diagnosis and CSS, Webflow Interactions, or GSAP motion planning;
 - explicit class-cleanup auditing and draft-first CMS/content migration;
-- evidence-based performance auditing and local-bundle testing against approved Webflow staging markup;
+- evidence-based performance auditing and local addon or project script testing against approved Webflow staging markup;
 - a two-response restore-point/waiver and final-confirmation gate for every non-publication Webflow mutation;
 - optional CMS agent tracking plus explicit locale-scope decisions for new localized items;
 - editor-facing scope handoffs after changed or reviewable work.

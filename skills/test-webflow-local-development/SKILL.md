@@ -15,7 +15,7 @@ Load only the selected local addon or project entries against an explicitly iden
 
 ## Workflow
 
-1. Record the remote staging/preview URL, local entry URL, fixed port, dev-server and Vite versions when applicable, expected bundle version, target markup hooks, and baseline behavior without the local entry. Stop if the only available target is a production custom domain.
+1. Record the remote staging/preview URL, each selected local entry URL and expected version, fixed port, dev-server and Vite versions when applicable, target markup hooks, and baseline behavior before loading the local entries. Stop if the only available target is a production custom domain.
 2. Confirm the dev-server version is supported and not affected by a current applicable security advisory. Start it on loopback unless another interface is explicitly required. Allow only the exact remote origin for CORS, use a fixed/strict port, preserve HMR WebSocket origin/token protections, and expose only the endpoint the client needs. Never enable Vite's `legacy.skipWebSocketTokenCheck`; use a patched integration or disable HMR and reload instead.
 3. Inject each selected local entry for the current browser session. Remove or suppress its matching hosted addon/project script for that session so local and hosted copies cannot initialize together; preserve unrelated scripts. Persisting a development script in Webflow requires a separate confirmed, staging-only plan with a removal step.
 4. Verify the script request status, content type, actual response, source map, `Origin`/CORS response, CSP result, and HMR WebSocket authorization separately. Record whether the browser uses a legacy Private Network Access preflight or current local/loopback-network permission behavior; do not treat CORS, WebSocket authorization, and local-network permission as interchangeable. If policy blocks the request, use an approved local certificate, narrow development-origin policy, or scoped tunnel; never disable browser security globally.
@@ -32,4 +32,4 @@ Never save a localhost, loopback, private-network, or temporary tunnel URL to pr
 
 ## Editor-facing handoff
 
-Name the tested page/template scope, local entry and owning repository module, Webflow markup/attribute contract, and any session-only override. Explain whether future changes belong in Webflow markup/custom code or the local bundle, what component/CMS/page/site instances are affected, and the test, cleanup, development-reference gate, publication, and recovery state.
+Name the tested page/template scope, selected local entries and their owning repository modules, Webflow markup/attribute contract, and any session-only overrides. Explain whether future changes belong in Webflow markup/custom code or a specific addon or optional project entry, what component/CMS/page/site instances are affected, and the test, cleanup, development-reference gate, publication, and recovery state.

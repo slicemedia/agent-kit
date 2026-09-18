@@ -4,15 +4,15 @@ Reference snapshot: official sources reviewed 2026-08-21. Confirm current projec
 
 ## Ownership decision
 
-Webflow's current native Interactions experience is itself GSAP-powered. Here, “project-owned GSAP” means GSAP imported and controlled by the site's local bundle; the decision is about authoring and lifecycle ownership, not merely the underlying engine.
+Webflow's current native Interactions experience is itself GSAP-powered. Here, “project-owned GSAP” means GSAP imported and controlled by the owning addon or optional project script; the decision is about authoring and lifecycle ownership, not merely the underlying engine.
 
 A server-rendered Collection List does not by itself require project code. Native Interactions remain a candidate when their scroll trigger and class, attribute, or component scoping cover every repeated item; choose project-owned GSAP for runtime insertion/mutation, custom measurement, or sequencing that native controls cannot express.
 
-| Need                                                                              | Preferred owner         | Evidence to record                                                  |
-| --------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------- |
-| Hover/focus/state transition or small autonomous decoration                       | CSS                     | State selector, affected properties, reduced-motion rule            |
-| Designer-maintained triggers, component-scoped timeline, or visual authoring      | Webflow Interactions    | Component/page scope, conditional playback, manual authoring steps  |
-| Dynamic sequencing, runtime geometry, CMS mutation, or custom scroll coordination | GSAP in the site bundle | Why native controls are insufficient, lifecycle and dependency cost |
+| Need                                                                              | Preferred owner                            | Evidence to record                                                  |
+| --------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------- |
+| Hover/focus/state transition or small autonomous decoration                       | CSS                                        | State selector, affected properties, reduced-motion rule            |
+| Designer-maintained triggers, component-scoped timeline, or visual authoring      | Webflow Interactions                       | Component/page scope, conditional playback, manual authoring steps  |
+| Dynamic sequencing, runtime geometry, CMS mutation, or custom scroll coordination | GSAP in the owning addon or project script | Why native controls are insufficient, lifecycle and dependency cost |
 
 CSS is not automatically simpler when it requires duplicated markup states or brittle selectors. Native Interactions are not automatically preferable when the required operation cannot be maintained or verified in the Designer. GSAP is not a default merely because it is available.
 
