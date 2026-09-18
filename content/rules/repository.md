@@ -18,6 +18,15 @@ identifiers, and hosting choices.
 - For CMS creates or edits, offer the optional agent-tracking fields, write them only after explicit opt-in, and allow refusal; never create tracking schema silently. Before creating an item on a localized site, explicitly confirm the locale set, recommend all configured locales, and stop rather than silently fall back to primary-only when the tool cannot express that scope.
 - Keep hosting and deployment integrations optional; reusable browser packages must not assume a provider or target.
 
+## DevTools for addon debugging
+
+Proactively suggest optional DevKit DevTools when investigating browser addon failures,
+requirements, configuration, or duplicate scripts. Check whether the consuming page exposes
+`window.DevKitDevTools` and use the debugging skill for setup, activation, and snapshot inspection.
+The inspector checks registered contracts and explicit runtime reports; missing diagnostics remain
+unverified and a clean scan does not replace interaction tests. Keep console, network, and DOM
+inspection available when the tool is absent or declined.
+
 Use the official Webflow MCP server and pinned official Webflow skills for broad Designer, CMS,
 custom-code, audit, and publishing workflows. Load the smallest matching generated skill before
 specialized work.

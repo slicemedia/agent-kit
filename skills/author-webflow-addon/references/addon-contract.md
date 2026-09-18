@@ -28,6 +28,18 @@ tree, and update affected embeds. Derive tags from `explain`/`catalog` and the a
 The CLI computes shared vendor paths at every output depth; no per-addon vendor URL is needed.
 Older CLIs without recursive marker discovery require explicit configured inputs/output paths.
 
+## Inspection contract
+
+Check the installed DevKit API before adding inspection fields; older versions may need an update.
+In versions supporting the inspection API:
+
+- Put element roles, parent/child relationships, required attributes, conditions, cardinality, unique keys, references, and supported value constraints in the shared definition's `structure` and attribute metadata. Use `scope: "global"` for services without component markup. Requirements are exposed through `instance.definition` and `getAddonMetadata(definition)`; comments are not the contract.
+- Map the inert definition to its browser entry in `devkit.config.json` so `explain` and `catalog` consume the same requirements as DevTools. Keep importing the definition free of startup effects.
+- Use `context.resolveOptions(root)` in behavior and diagnostics so per-root attribute overrides and configured defaults agree. Declare `attribute.option` mappings or an explicit synchronous resolver rather than duplicating option parsing in the inspector.
+- Expose synchronous, read-only `inspect(context)` reports on the definition or setup hooks for actual runtime state, semantic issues, and dependency readiness. Consumers can call `instance.inspect(root?)`. Do not initialize vendors, mutate DOM, fetch data, or return promises from inspection. Report unavailable facts as unverified.
+- Initialize through `initializeAddon(runtime, instance)` so inspection can retain startup failures while public API registration and readiness remain success-only. The inspector does not call lifecycle methods or `getState` to discover state.
+- Treat DevTools as optional. Suggest it for debugging declared requirements and per-instance reports; a clean snapshot does not establish that behavior works.
+
 ## Lifecycle
 
 - Repeated `init` calls do not duplicate work.

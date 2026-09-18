@@ -16,7 +16,7 @@ Verification is read-only and applies only to the explicitly configured staging 
 1. Resolve the exact site with `data_sites_tool` action `get_site`, derive the Webflow staging origin from the returned site details, and confirm the URL matches it. Never trust a supplied URL alone. Stop if it resolves to a production or custom domain.
 2. Record the publication target and relevant script versions loaded by the page.
 3. Exercise every relevant breakpoint, multiple instances, CMS-rendered items, keyboard navigation, reduced motion, and empty/missing markup.
-4. Check console errors, failed requests, duplicate assets, focus order, ARIA state, layout shifts, and duplicate behavior after repeated interactions or dynamic-content refresh.
+4. Check console errors, failed requests, duplicate assets, focus order, ARIA state, layout shifts, and duplicate behavior after repeated interactions or dynamic-content refresh. If the page already exposes `window.DevKitDevTools`, suggest opening the on-page inspector to compare registered addon requirements, effective options, runtime reports, and duplicate warnings. Use Rescan after viewport or content changes; missing diagnostics remain unverified and a clean snapshot does not replace the interaction checks. Continue with browser evidence if the inspector is unavailable.
 5. Capture reproducible failures with URL, viewport, steps, expected result, actual result, and evidence.
 6. Return a pass/fail/incomplete report. Add an editor-facing handoff naming the controlling component, CMS, attribute, or external project-code surface for every failure, affected pages or instances, loaded version, verification coverage, and unchanged publication state. Do not publish or alter custom code as part of testing.
 

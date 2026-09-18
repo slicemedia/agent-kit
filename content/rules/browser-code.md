@@ -1,6 +1,7 @@
 # Browser enhancement rules
 
 - Expose reusable behavior through typed addon metadata and lifecycle methods; keep ESM imports inert.
+- For DevKit versions with the inspection API, declare nested markup roles, conditions, counts, and value constraints in the shared definition consumed by DevTools, `explain`, and `catalog`. Use `context.resolveOptions(root)` for per-instance configuration, synchronous read-only `inspect` reports for runtime facts, and `initializeAddon(runtime, instance)` in the browser entry so failed startup remains inspectable. Keep unavailable diagnostics unverified.
 - Scope queries to an explicit root, support multiple instances, and use only documented `data-wft-*` hooks.
 - Track and remove owned listeners, observers, timers, generated nodes, attributes, styles, and vendor instances.
 - Reconcile missing or delayed DOM, CMS mutations, breakpoint changes, reduced motion, keyboard use, and destroy/reinitialize cycles when relevant.
