@@ -14,7 +14,7 @@ Diagnose read-only first. A fix, custom-code change, or publication needs its ow
 ## Workflow
 
 1. Record the exact URL, environment, viewport, expected behavior, actual behavior, and minimal reproduction.
-2. Verify the browser loaded the intended project bundle: request URL, status, content type, version/digest, cache headers, and absence of an older duplicate.
+2. Identify the addon or optional project entry that owns the failing behavior. Verify its script and any matching stylesheet: request URL, status, content type, version/digest, cache headers, and absence of an older duplicate. Inventory other loaded entries separately.
 3. Inspect console errors and warnings, network failures, global conflicts, and whether the entry ran at the expected Webflow lifecycle point.
 4. Compare addon metadata and options with rendered `data-wft-*` hooks. Check missing, duplicate, delayed, CMS-inserted, hidden, or bound elements.
 5. Inspect computed layout and accessibility state at the failing breakpoint. Test reduced motion, keyboard behavior, resize, CMS mutation, refresh, destroy, and reinitialize when relevant.

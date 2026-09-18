@@ -1,6 +1,6 @@
 ---
 name: deploy-digitalocean-spaces
-description: Explicitly plan and apply version-preserving, content-addressed project-bundle deployment through the optional DigitalOcean Spaces package. Use only when the generated project selected that capability and the user directly asks to deploy its built artifacts.
+description: Explicitly plan and apply version-preserving, content-addressed deployment of built addon and optional project artifacts through the optional DigitalOcean Spaces package. Use only when the generated project selected that capability and the user directly asks to deploy its built artifacts.
 metadata:
   surfaces: [local-agent]
 ---
@@ -12,7 +12,7 @@ This is an optional remote-write workflow. Building or discussing a project is n
 ## Workflow
 
 1. Confirm that `@slicemedia/spaces-deployer` is installed and run the local project build first.
-2. Require an explicit source directory, HTTPS Spaces endpoint, region, bucket, non-empty prefix, and immutable release version. Read credentials only from local environment variables at apply time.
+2. Require an explicit source directory, HTTPS Spaces endpoint, region, bucket, non-empty prefix, and immutable release version. For DevKit, deploy `dist/`, preserving the separate `addons/` and optional `projects/` script and stylesheet paths; keep `.slicemedia/sourcemaps/` outside the deployment source. Read credentials only from local environment variables at apply time.
 3. Run `slicemedia-spaces plan` with all target options and an ignored plan-file path. Never add account, bucket, or prefix defaults to reusable source.
 4. Review the plan ID, target, release version, artifact-set digest, sorted object keys, sizes, content types, and SHA-384 digests. Confirm that no key represents a mutable alias such as `latest`.
 5. Present the exact plan and require explicit confirmation of its ID and target.

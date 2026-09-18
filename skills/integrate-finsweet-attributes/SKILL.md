@@ -18,7 +18,7 @@ The recovery and confirmation gate below applies to every Webflow-hosted mutatio
 - **Client-First** is a class, structure, and style convention. It neither installs nor configures Attributes.
 - **Finsweet Attributes** provides attribute-driven JavaScript solutions. Its `fs-*` hooks and runtime remain vendor-owned.
 - **Finsweet Components** is a separate app-managed component product. Do not install, license, replace, or configure it through this skill.
-- **Slice Media DevKit addons** are project-bundled code with neutral `data-wft-*` contracts. Do not rename `fs-*` hooks to `data-wft-*` or wrap an Attributes solution as a DevKit addon without a separate authoring decision.
+- **Slice Media DevKit addons** are independently built project-owned enhancements with neutral `data-wft-*` contracts. Do not rename `fs-*` hooks to `data-wft-*` or wrap an Attributes solution as a DevKit addon without a separate authoring decision.
 
 When native Webflow behavior already meets the requirement, prefer it. If multiple products could solve the problem, compare ownership, CMS needs, accessibility, lifecycle control, maintenance, and cost before asking the user to choose.
 

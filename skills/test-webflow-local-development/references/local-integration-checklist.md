@@ -4,7 +4,7 @@ Reference snapshot: official sources reviewed 2026-08-21. Browser local-network 
 
 ## Connection preflight
 
-- Identify one remote `.webflow.io` staging or `.canvas.webflow.com` preview origin and one local entry. Do not treat an origin pattern as approval for every site.
+- Identify one remote `.webflow.io` staging or `.canvas.webflow.com` preview origin and the selected local addon or optional project entries. Record each entry's URL; do not treat an origin pattern as approval for every site.
 - Record the actual Vite/dev-server version and check current maintainer security advisories. Use a patched supported version. Keep HMR's origin/token validation enabled; do not use `legacy.skipWebSocketTokenCheck` to make an older integration connect.
 - Keep the server on loopback by default. If LAN access is necessary, bind deliberately and limit allowed hosts; wildcard host acceptance creates DNS-rebinding exposure.
 - Configure CORS with the exact remote origin. `Access-Control-Allow-Origin: *` or an unrestricted dev-server CORS switch is not the default fix.
@@ -14,9 +14,9 @@ Reference snapshot: official sources reviewed 2026-08-21. Browser local-network 
 
 ## Load and HMR evidence
 
-1. Capture the baseline page with no project bundle override.
-2. Confirm only one project entry is present in the network and runtime.
-3. Check status, JavaScript content type, response body/version, source map, initiator, CORS headers, and cache source.
+1. Capture the baseline page before overriding any selected addon or project script.
+2. Confirm each selected entry is loaded once in the network and runtime. Suppress only its matching hosted script for the session; preserve unrelated addon and project scripts.
+3. Check each selected script's status, JavaScript content type, response body/version, source map, initiator, CORS headers, and cache source, plus any matching stylesheet.
 4. Make a harmless local change and prove that HMR or the documented reload path delivered that exact version.
 5. Verify the prior enhancement was destroyed before the replacement initialized. Duplicate logs, observers, listeners, controls, or vendor instances fail the test.
 6. Reload with cache disabled, then restart the dev server and verify failure/recovery behavior.

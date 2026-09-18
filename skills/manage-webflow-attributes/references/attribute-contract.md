@@ -6,7 +6,7 @@
 - Existing unrelated attributes remain byte-for-byte unchanged.
 - Bound attributes are not replaced with static values without separate explicit approval.
 - Repeated instances receive independent identifiers only when the runtime contract requires them.
-- Removing a hook is a behavior change and must be verified against the loaded project bundle.
+- Removing a hook is a behavior change and must be verified against every loaded addon or optional project script that uses it.
 - The receipt records structured element ID, prior value, requested value, result, and read-back value.
 
 ## Mutation gate
