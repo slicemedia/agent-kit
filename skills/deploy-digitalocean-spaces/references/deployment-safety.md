@@ -1,13 +1,13 @@
-# DigitalOcean Spaces safety
+# DigitalOcean Spaces deployment contract
 
-- The plan binds target, release version, paths, sizes, content types, and file digests.
-- Credentials are never part of a plan, receipt, command argument, generated project file, or log.
-- Apply must receive the exact reviewed plan ID and explicit confirmation.
-- DigitalOcean Spaces does not support atomic conditional `PutObject`; never claim atomic no-overwrite behavior.
-- Require bucket versioning status `Enabled`, content-digest object namespaces, and a complete `HeadObject` preflight before any `PutObject`.
-- Skip only exact `ContentLength` plus `sha384` metadata matches; fail closed on occupied mismatches or ambiguous `HeadObject` responses.
-- The HEAD-to-PUT interval is not atomic. Versioning preserves earlier versions if an external writer races. Never delete existing versions.
-- The package exposes no delete, mutable-alias, or synchronization operation.
-- Source drift after planning fails before upload.
-- A partial failure receipt lists completed and failed keys; it does not authorize automatic cleanup or retry.
-- Publishing or changing Webflow custom code is separate from uploading project artifacts.
+- The plan binds the target, release label, mode, relative paths, sizes, content types, and file digests. Stable plans also bind the cache policy, CDN endpoint, and purge scope. Apply requires the exact reviewed plan ID and explicit confirmation.
+- Deploy the complete `dist/` directory, preserving `addons/`, optional `projects/`, and `vendor/`. Private sourcemaps remain in `.slicemedia/sourcemaps/`; do not widen the upload source. Any hosting action must retain the same relative tree.
+- Stable mode is the default. Use a dedicated prefix of at least two segments and explicitly review replacement of its planned keys. It retains browser URLs and purges only that prefix on the specified CDN endpoint after verification. The release label does not change stable URLs.
+- Bucket versioning is optional with Spaces Deployer 0.2.1+. Default apply does not query or require it. Use `--require-bucket-versioning` only when the project requires retained object history and supplies the corresponding permission. Without enabled versioning, replacement does not retain old bytes.
+- Stable apply preflights destinations, uploads changed files, verifies returned version IDs when available or ETags otherwise together with planned metadata, and verifies current objects before purging. A successful purge request is not proof that every edge or already-open page has refreshed.
+- Stable cache policy is `public, max-age=0, s-maxage=300, must-revalidate`; verify public headers. Do not use immutable caching for stable mutable assets. Plan `--acl public-read` for public browser files unless access is configured independently.
+- `--mode immutable` uses release/digest namespaces, one-year immutable caching, rejects occupied mismatches, and makes no CDN requests. It is suitable when URLs or integrity hashes must remain bound to exact bytes.
+- Credentials are read only at apply time, never included in plans, receipts, command arguments, generated files, or logs. Stable apply needs the Spaces credentials and a separate DigitalOcean API token for the scoped CDN purge.
+- Source drift invalidates the plan. After partial failure, inspect the receipt and current state; reapplying the same unchanged, approved stable plan skips matching uploads and retries purging. Changed bytes or targets require a new reviewed plan. Never delete remote content as recovery.
+- The HEAD-to-PUT interval and multi-file uploads are not atomic. Serialize deployments to the same prefix; do not promise a transaction or cross-writer lock. Retain build artifacts or source for rollback. The deployer does not delete obsolete objects and is not a directory-sync tool.
+- Uploading artifacts does not update or publish Webflow custom code. Those are separate requested operations.

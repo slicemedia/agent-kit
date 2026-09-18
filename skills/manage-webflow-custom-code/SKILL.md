@@ -18,7 +18,7 @@ The recovery and confirmation gate below applies to every Webflow-hosted mutatio
 1. Identify the exact site and optional page. Read registered scripts, applied site/page scripts, and affected freeform blocks before planning.
 2. Separate registration from application. Prefer additive `add_site_script` or `add_page_script` when it expresses the request.
 3. Treat `set_*_scripts`, `clear_*_scripts`, and `set_*_freeform_code` as full-scope replacements. Include every preserved entry or byte in the reviewed plan.
-4. Validate immutable HTTPS URLs, version, integrity, placement, and the exact target. Treat registered-script deletion as irreversible.
+4. Validate HTTPS delivery, placement, and the exact target. Hosted script registration requires a semantic version and matching integrity hash: use immutable byte-bound URLs for that workflow. An explicitly requested freeform script embed may use the project's stable addon URLs with revalidation and CDN invalidation; do not pin an old integrity hash to changing bytes. Treat registered-script deletion as irreversible.
 5. Present exact additions, updates, removals, target identifiers, preserved state, risk tier, blast radius, recovery limitations, and publication status.
 6. Ask the user to save all current Webflow changes and create a new native Webflow restore point, or explicitly waive it after the recovery limitations are explained. Hard-stop for a new reply confirming completion or waiver. Existing, automatic, or historical backups, activity history, snapshots, and advance approvals do not count.
 7. After that reply, re-read registration, application, and freeform state. Restart the gate if state or the plan changed. Otherwise ask for a separate final confirmation of the exact plan and target immediately before the first write. The restore-point or waiver reply cannot double as write confirmation; one gate covers only its unchanged bounded batch.
@@ -29,5 +29,7 @@ Read [the safety model](references/safety-model.md) before applying.
 
 ## Fail closed
 
-Stop on an unspecified target, mutable hosted URL, missing integrity, insufficient permission, pagination uncertainty, stale pre-state, or an operation that would overwrite unrelated code.
+Stop on an unspecified target, a mutable URL or missing integrity in a version-pinned hosted-script registration, insufficient permission, pagination uncertainty, stale pre-state, or an operation that would overwrite unrelated code. Stable URLs in reviewed freeform embeds do not by themselves trigger this stop.
 Editing custom code never authorizes publication.
+
+See the official [hosted script registration contract](https://developers.webflow.com/data/reference/custom-code/custom-code/register-hosted) for required version and integrity fields.

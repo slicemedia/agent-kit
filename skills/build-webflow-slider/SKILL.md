@@ -7,13 +7,13 @@ metadata:
 
 # Build Webflow Slider
 
-Use the optional Slice Media Swiper Adapter around upstream Swiper when native Webflow or a simpler maintained integration cannot meet the requirement. It is not a fork. Preserve readable source content before enhancement and after teardown.
+Prefer upstream Swiper for sliders and carousels, using the optional Slice Media Swiper Adapter for its lifecycle, responsive, and CMS support. Honor an explicit user choice of native Webflow sliders or another implementation. Choosing Swiper does not require proving native sliders inadequate. Preserve existing slider ownership unless migration is requested, and keep source content readable before enhancement and after teardown.
 
 ## Workflow
 
-1. Confirm that native Webflow behavior cannot meet the requirement, then choose always-on or breakpoint-enabled behavior.
+1. Follow the user's chosen slider implementation; otherwise choose Swiper. For Swiper, select always-on or breakpoint-enabled behavior and identify the existing owner before changing it.
 2. Use standard `.swiper`, `.swiper-wrapper`, and `.swiper-slide` structure plus one scoped `[data-wft-slider]` root. Keep controls inside that root and import only the official Swiper CSS entries the selected modules need.
-3. Import `@slicemedia/swiper-adapter` only in the selected project integration. Use its opt-in `/webflow` entry when the slider needs scoped upstream A11y, Navigation, or Pagination modules; never add either entry to an unrelated starter.
+3. Keep Swiper and `@slicemedia/swiper-adapter` in one project-owned shared vendor entry under `src/vendors/`, declared in `devkit.config.json`. Load that vendor JS and CSS once, only after matching markup needs it; await the generated `createProjectSlider()` integration. Add the opt-in `/webflow` helper and only its required CSS to that same vendor when using scoped A11y, Navigation, or Pagination. Do not statically import another adapter/vendor copy into each addon or add sliders to an unrelated starter.
 4. For a CMS list that can reorder or replace nodes, give every slide a unique persistent `data-wft-slide-key` and enable mutation observation. Do not derive identity from the current array index.
 5. Preserve project-owned markup and attributes. Let the controller own one vendor instance per root and destroy it before another controller takes ownership.
 6. Define typed breakpoint, sizing, motion, navigation, pagination, and refresh options. Treat reduced motion and any missing `ResizeObserver` fallback as project decisions rather than implied package behavior.

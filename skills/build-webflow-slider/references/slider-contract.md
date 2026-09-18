@@ -2,6 +2,9 @@
 
 ## Product boundary
 
+- Swiper is the default for new slider requests. The user's explicit native Webflow or other slider choice takes precedence.
+- Share one loaded adapter and upstream Swiper module per project vendor URL so controllers across addon files use the same ownership registry. Initialize near the viewport when useful and await vendor CSS before measuring.
+
 - Source markup remains useful without JavaScript. Structural classes and CSS come from upstream Swiper.
 - `@slicemedia/swiper-adapter` supplies lifecycle, responsive reconciliation, and DOM restoration. It does not import CSS, generate controls, publish scripts, or replace project composition.
 - `@slicemedia/swiper-adapter/webflow` is an opt-in options helper for upstream A11y, Navigation, and Pagination modules. It creates no markup and performs no initialization.

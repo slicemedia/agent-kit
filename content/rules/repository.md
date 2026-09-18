@@ -8,6 +8,7 @@ identifiers, and hosting choices.
 
 - Prefer Webflow-native layout, components, CMS, forms, variables, and base styling. Keep browser code focused on behavior attached to existing Webflow markup.
 - Honor the user's animation approach first. Prefer GSAP addons for custom animation work; use CSS for simple state effects or native Webflow Interactions when they are clearly sufficient and Designer ownership is useful. Choosing GSAP does not require proving that native Interactions are incapable. Preserve existing animation ownership unless changing it is part of the request.
+- Prefer Swiper for sliders and carousels, using the optional Slice Media Swiper Adapter where its lifecycle and CMS support fit. Honor an explicit user choice of native Webflow sliders or another implementation. Do not require native sliders to fail first, and preserve existing slider ownership unless migration is requested.
 - Use neutral `data-wft-*` hooks. Never introduce client names, assets, URLs, site IDs, component IDs, credentials, copied production markup, or project fallback selectors.
 - Keep package ESM imports side-effect-free. Each consumer-owned addon entry under `src/addons/` selects and initializes its own behavior and builds to an independent `dist/addons/<name>.js` with optional CSS. Project entries are optional and compose only deliberately selected behavior.
 - Make lifecycle initialization idempotent and destruction complete. Preserve DOM, attributes, accessibility state, and remote data that the code does not own.
