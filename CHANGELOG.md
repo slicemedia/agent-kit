@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5
+
+### Patch Changes
+
+- Require distinct attribute namespaces for new addons, root ownership for repeated and nested instances, and documented exceptions for shared hooks. Align authoring, attribute management, generated agent rules, and slider examples while preserving existing markup contracts.
+
 ## 0.2.4
 
 ### Patch Changes

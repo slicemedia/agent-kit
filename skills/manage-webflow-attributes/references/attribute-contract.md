@@ -1,6 +1,8 @@
 # Attribute contract
 
-- A behavior hook starts with `data-wft-` and has one documented owner.
+- New addon contracts use a stable neutral `data-wft-<addon>` root and `data-wft-<addon>-<role-or-option>` hooks, with a distinct namespace per addon and one documented owner. Check existing metadata and markup for collisions; `data-wft-` alone does not isolate addons.
+- Repeated instances of the same addon reuse attribute names. The runtime scopes children, controls, and options to their owning root, excluding nested instances. Do not invent a namespace for each page, folder, or component instance.
+- Use the installed addon's exact documented names. Keep deliberate adapter/vendor hooks shared only as their contract specifies; do not rename third-party hooks or existing addon attributes merely to adopt the convention. A rename needs matching runtime selectors, option mappings, metadata, and setup documentation.
 - Presence-only hooks use an empty value unless metadata defines another form.
 - Enumerated and numeric values are validated before writing.
 - Existing unrelated attributes remain byte-for-byte unchanged.
@@ -8,6 +10,8 @@
 - Repeated instances receive independent identifiers only when the runtime contract requires them.
 - Removing a hook is a behavior change and must be verified against every loaded addon or optional project script that uses it.
 - The receipt records structured element ID, prior value, requested value, result, and read-back value.
+
+For new or revised addon contracts, read the [namespace and ownership guidance](../../author-webflow-addon/references/addon-contract.md#attribute-namespaces-and-ownership).
 
 ## Mutation gate
 

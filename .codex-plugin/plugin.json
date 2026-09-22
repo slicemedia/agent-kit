@@ -1,6 +1,6 @@
 {
   "name": "agent-kit",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Focused AI skills for safe, reusable, and verifiable Webflow development workflows.",
   "author": {
     "name": "Slice Media"

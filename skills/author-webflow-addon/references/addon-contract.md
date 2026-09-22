@@ -11,6 +11,44 @@ The definition is the source of truth for runtime behavior, generated documentat
 - Body-end placement unless an earlier load is technically required
 - Project-owned ESM entry point; no package-global registration
 
+## Attribute namespaces and ownership
+
+For a new addon with markup hooks, choose one stable lowercase, hyphen-separated namespace aligned
+with its neutral addon name. Inspect the project's existing definitions and markup before choosing it. Use
+`data-wft-<addon>` for the root and `data-wft-<addon>-<role-or-option>` for owned children,
+controls, settings, and state. Services without markup need no invented root hook. Different addons need distinct namespaces. Avoid generic names
+such as `data-wft-item`, `data-wft-speed`, or `data-wft-duration` for addon-owned behavior.
+
+```html
+<section data-wft-reveal data-wft-reveal-duration="600">
+  <div data-wft-reveal-item data-wft-reveal-delay="100"></div>
+</section>
+<span data-wft-countup data-wft-countup-duration="1200">100</span>
+```
+
+Every instance of the same addon reuses its namespace; do not add page names, folder names, or
+instance numbers to attribute names. Put per-instance settings on the root and per-item overrides
+on owned children, with documented types, units, and defaults. Separate stable item IDs are needed
+only when the behavior requires identity, such as CMS slide reconciliation.
+
+Scope queries and delegated events to the owning root. For nested instances of one addon, require
+the candidate's closest matching addon root to be the current root; `root.querySelectorAll()` alone
+also finds nested instances' children. When intentionally sharing roles across addon types,
+define the boundary across all participating roots. Test sibling instances, nested instances, and
+two different addons on the same page or element without settings, controls, or cleanup crossing
+owners.
+
+Shared adapter/vendor hooks are deliberate exceptions, not activation selectors for every addon
+using that vendor. Document their owner, purpose, consumers, and scope, and keep one lifecycle
+owner per vendor instance or mutable behavior. One element may carry multiple independent addon
+contracts; each addon must preserve the other's state. Preserve established names and third-party hooks unless migration is
+requested; coordinate any rename across runtime selectors, option mappings, metadata, markup,
+and setup documentation. Do not silently rename working markup to satisfy this convention.
+
+Declare concrete attribute names in the supported metadata fields. DevKit validates `data-wft-*`
+syntax; it does not infer a namespace from the addon name or folder, prefix attributes, or make
+arbitrary selectors safe automatically.
+
 ## Entry organization
 
 Mark new browser entry files with `.entry.ts` / `.entry.js` (TSX/MJS also work). For example,

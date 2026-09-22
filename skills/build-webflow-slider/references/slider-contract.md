@@ -9,9 +9,34 @@
 - `@slicemedia/swiper-adapter` supplies lifecycle, responsive reconciliation, and DOM restoration. It does not import CSS, generate controls, publish scripts, or replace project composition.
 - `@slicemedia/swiper-adapter/webflow` is an opt-in options helper for upstream A11y, Navigation, and Pagination modules. It creates no markup and performs no initialization.
 
+## Attribute namespaces
+
+For a new slider addon, use its own namespace for activation, roles, controls, options, and item
+keys; follow the [addon namespace contract](../../author-webflow-addon/references/addon-contract.md#attribute-namespaces-and-ownership).
+For example, `gallery-slider` uses `data-wft-gallery-slider` and
+`data-wft-gallery-slider-track`, while a separate `testimonial-slider` uses its own prefix.
+Repeated galleries reuse the gallery names; per-root options express instance differences.
+
+Keep `data-wft-slider` on each component root **alongside** its addon-specific root hook. In
+Adapter 0.2.0, the structure resolver and `/webflow` controls helper use this shared marker to
+exclude nested slider components, including before initialization. Custom `structure` selectors
+do not replace that boundary marker. Document it as adapter-owned shared scope, not as a universal
+activation selector for unrelated addons.
+
+Activate only roots belonging to this addon and pass those elements or its exact selector as
+`target`. The generated `createProjectSlider()` defaults to all `[data-wft-slider]` roots; do not
+leave that default in separate slider addons. The adapter's ownership guard can reject a second
+controller, but cannot tell whether the first controller selected the wrong addon's root.
+
+Map owned track/slide/container names through `structure`, controls through the `/webflow`
+helper's `navigation.previous`, `navigation.next`, and `pagination.element`, and CMS keys through
+`slideKeyAttribute`. Preserve established generic hooks such as `data-wft-slider-track` and
+`data-wft-slide-key` when they are an intentional documented shared contract; change names only
+with coordinated runtime, metadata, and markup migration.
+
 ## Markup and ownership
 
-- With adapter 0.2.0 or later, prefer `structure: true` with `[data-wft-slider]` on the component, `[data-wft-slider-track]` on its list, and `[data-wft-slider-slide]` on each direct item. If no items are marked, direct HTML children are slides, excluding scripts/styles/templates. Keep controls and other non-slide content outside the track.
+- With adapter 0.2.0 or later, prefer an explicit `structure` mapping for addon-specific list and direct-item hooks. `structure: true` uses the shared defaults `[data-wft-slider-track]` and `[data-wft-slider-slide]`; if no items are marked, direct HTML children are slides, excluding scripts/styles/templates. Keep controls and other non-slide content outside the track.
 - The track's existing parent becomes the Swiper container. `[data-wft-slider-container]` or `structure.container` can select it explicitly, but it must still be the track's direct parent inside the component. CMS Collection List Wrapper / Collection List / Collection Item maps naturally to container / track / slide. Mark the item itself, not a nested card; the adapter does not rebuild or reparent arbitrary DOM.
 - Keep visual styling on Webflow component classes. Temporary `.swiper`, `.swiper-wrapper`, and `.swiper-slide` classes are runtime mechanics, not Designer class requirements. Customize scoped `structure.track`, `structure.slides`, and `structure.container` selectors when existing neutral hooks differ. Do not rename or fork upstream classes/CSS to accomplish this.
 - Default preparation changes the track to non-wrapping flex in Swiper's direction, prevents slide growth/shrink, and clears gaps for Swiper's `spaceBetween`. Optional `equalHeight` stretches slides; optional `containInlineSize` suits a container constrained by a grid/flex parent. Keep `slidesPerView: "auto"` card widths in Webflow. `layout: false` leaves layout mechanics to project CSS; `clearGap: false` requires verified spacing.
@@ -24,7 +49,7 @@
 
 ## CMS identity
 
-- Set a unique, persistent `data-wft-slide-key` on every CMS slide when items can be inserted, sorted, filtered, or replaced. Enable `observeMutations` or call `refresh()` after the integration's own completion event.
+- Set a persistent key unique within each track on every CMS slide when items can be inserted, sorted, filtered, or replaced. For new gallery contracts use `data-wft-gallery-slider-key` with `slideKeyAttribute` set to that name; the adapter defaults to `data-wft-slide-key` for existing shared contracts. Enable `observeMutations` or call `refresh()` after the integration's own completion event.
 - Newly inserted slides are prepared before update; replacing the entire track recreates its instance. Refresh preserves the active element when it survives. If nodes are replaced, it matches the unique key. In loop mode the adapter passes a matched slide's upstream `data-swiper-slide-index` to `slideToLoop()` as the real logical index. A fresh unindexed replacement is restored with its current refreshed active index instead; never pass a rearranged array index to `slideToLoop()` and call it logical identity.
 - If the active item was removed or no stable key exists, the adapter clamps the prior logical index. Do not claim that it can preserve an item whose identity disappeared.
 
@@ -36,24 +61,44 @@
 
 ## Accessible controls
 
-- Put `[data-wft-slider-prev]`, `[data-wft-slider-next]`, and optional `[data-wft-slider-pagination]` inside their component root, outside the track. They can be siblings of the CMS wrapper. Nested slider controls belong only to the nested root. Pass the component root to `createWebflowSwiperOptions()`, even when Swiper uses an inner container.
+- Put addon-specific previous/next hooks and optional pagination inside their component root, outside the track. They can be siblings of the CMS wrapper. Map them explicitly in `createWebflowSwiperOptions()`; its defaults remain `[data-wft-slider-prev]`, `[data-wft-slider-next]`, and `[data-wft-slider-pagination]` for shared contracts. Nested slider controls belong only to the nested root; retain the shared root boundary marker. Pass the component root to the helper, even when Swiper uses an inner container.
 - Navigation controls must be native `<button type="button">` elements. Give them visible text, `aria-label`, a valid `aria-labelledby`, or pass localized `previousLabel` and `nextLabel` values to `createWebflowSwiperOptions()`.
 - Import `swiper/css` plus the official CSS entries for the enabled A11y, Navigation, and Pagination modules through a project stylesheet using `@import "swiper/css" layer(swiper);` (likewise for module CSS). Keep that layer below project styles so lazy-loaded vendor CSS does not override Webflow card display or widths; if project styles also use layers, declare their order explicitly. The helper scopes elements and passes localized messages to upstream Swiper; upstream owns disabled state and carousel announcements while initialized. Attribute preparation temporarily suspends conflicting CMS list roles when A11y uses carousel groups, then restores them on teardown.
 - If a project bypasses the `/webflow` helper or supplies a custom factory, that project owns module registration, accessible names, disabled state, and keyboard verification.
 
 ## Verification
 
-- Test no-JavaScript reading order, multiple roots, one-root ownership conflicts, keyed CMS insertion and removal, breakpoint disable/re-enable, hidden-to-visible activation, navigation by keyboard, reduced motion, resize, and complete destroy/reinitialize.
+- Test no-JavaScript reading order, repeated roots, two different slider addons together, nested roots and controls before initialization, one-root ownership conflicts, keyed CMS insertion and removal, breakpoint disable/re-enable, hidden-to-visible activation, navigation by keyboard, reduced motion, resize, and complete destroy/reinitialize. Confirm each addon selects only its own roots and settings.
 - Destroy must restore project-authored attributes and accessibility state while preserving CMS nodes added after initialization.
 
 ## DevKit integration
 
-Pass the mode through the generated async integration after checking the installed adapter version:
+Example contract for a new `gallery-slider` addon; visual classes remain Webflow-owned:
+
+```html
+<section data-wft-gallery-slider data-wft-slider>
+  <div data-wft-gallery-slider-track>
+    <article data-wft-gallery-slider-slide data-wft-gallery-slider-key="first">
+      First card
+    </article>
+    <article data-wft-gallery-slider-slide data-wft-gallery-slider-key="second">
+      Second card
+    </article>
+  </div>
+</section>
+```
+
+For each root found by `[data-wft-gallery-slider]`, pass the mapping through the generated async
+integration after checking the installed adapter version:
 
 ```ts
 const slider = await createProjectSlider({
   target: root,
-  structure: true,
+  structure: {
+    track: "[data-wft-gallery-slider-track]",
+    slides: "[data-wft-gallery-slider-slide]",
+  },
+  slideKeyAttribute: "data-wft-gallery-slider-key",
   enabled: { maxWidth: 767 },
   observeMutations: true,
   swiper: { slidesPerView: 1.2, spaceBetween: 16 },
@@ -64,5 +109,25 @@ slider?.on("structureIssue", ({ reason, message, element }) => {
 slider?.init();
 // On addon teardown: slider?.destroy();
 ```
+
+The track's direct parent is the container by default. If this contract adds a separate container
+hook, map `structure.container` to `[data-wft-gallery-slider-container]`.
+
+When adding optional controls with the matching names, build the controller's `swiper` options
+through the shared vendor's exposed helper:
+
+```ts
+createWebflowSwiperOptions(root, {
+  navigation: {
+    previous: "[data-wft-gallery-slider-prev]",
+    next: "[data-wft-gallery-slider-next]",
+  },
+  pagination: { element: "[data-wft-gallery-slider-pagination]" },
+  swiper: { slidesPerView: 1.2, spaceBetween: 16 },
+});
+```
+
+Configure only controls present in the contract; explicit missing selectors are errors. Use
+`navigation: false` or `pagination: false` for unused controls when calling this helper.
 
 Import `createProjectSlider` from the project's integration. Keep runtime adapter imports and optional `/webflow` helpers in the shared slider vendor, not in each addon. If exposing the controls helper from that vendor, update the integration's declared shared exports together with it. Rebuild and deploy the complete `dist/` tree after changing the dependency or vendor contract.
