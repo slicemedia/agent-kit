@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4
+
+### Patch Changes
+
+- 605aa9a: Prefer attribute-driven Webflow slider markup with component-owned design classes and the adapter's reversible structure preparation. Document version checks, CMS/container mapping, scoped controls, diagnostics, cleanup, and shared-vendor integration while preserving explicit user choices and standard-markup compatibility.
+
 ## 0.2.3
 
 ### Patch Changes
