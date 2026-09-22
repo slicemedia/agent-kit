@@ -13,6 +13,8 @@ This skill is local-only because site-native Webflow Agent Instructions cannot a
 
 Load only the selected local addon or project entries against an explicitly identified remote Webflow page, once per entry. Prefer session-only browser injection or request override so remote Webflow state remains unchanged.
 
+Always also provide the user with [the copyable script-tag handoff](../author-webflow-addon/references/script-tag-handoff.md): the actual start command, local module/HMR tags first, exact Webflow placement, and required attributes/configuration. Browser injection does not replace that setup information. Label snippets for local testing and use the separate confirmed workflow if a staging embed must be persisted.
+
 ## Workflow
 
 1. Record the remote staging/preview URL, each selected local entry URL and expected version, fixed port, dev-server and Vite versions when applicable, target markup hooks, and baseline behavior before loading the local entries. Stop if the only available target is a production custom domain.
@@ -32,4 +34,4 @@ Never save a localhost, loopback, private-network, or temporary tunnel URL to pr
 
 ## Editor-facing handoff
 
-Name the tested page/template scope, selected local entries and their owning repository modules, Webflow markup/attribute contract, and any session-only overrides. Explain whether future changes belong in Webflow markup/custom code or a specific addon or optional project entry, what component/CMS/page/site instances are affected, and the test, cleanup, development-reference gate, publication, and recovery state.
+Give the tested local tags and start command directly in fenced blocks with the exact placement, even when the agent performed the test. Name the tested page/template scope, selected local entries and their owning repository modules, Webflow markup/attribute contract, and any session-only overrides. Explain whether future changes belong in Webflow markup/custom code or a specific addon or optional project entry, what component/CMS/page/site instances are affected, and the test, cleanup, development-reference gate, publication, and recovery state. Provide separate verified CDN tags only when the current build is already deployed; otherwise state the deployment or URL information still pending.

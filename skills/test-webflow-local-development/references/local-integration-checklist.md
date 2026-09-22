@@ -27,7 +27,7 @@ Use the remote page's actual element order, component instances, CMS output, con
 
 ## Zero-development-reference gate
 
-Before handoff, search all inspected production-bound surfaces for:
+Before accepting production readiness, search all inspected production-bound surfaces for:
 
 - `localhost`, `127.0.0.1`, `[::1]`, `0.0.0.0`
 - private IPv4 ranges used by the test
@@ -35,6 +35,11 @@ Before handoff, search all inspected production-bound surfaces for:
 - Vite or other dev-client/HMR entry paths
 
 Inspect local production output and deployment configuration, plus Webflow site/page custom code and rendered staging/production HTML when access permits. Clear any session override and relevant browser/service-worker cache. If any surface cannot be inspected, report the gate as unverified rather than passing it.
+
+This gate checks served/persisted code and deployable output. Clearly labeled local-testing tags
+in the user-facing handoff or setup documentation are expected and do not fail it. Follow the
+[script-tag handoff](../../author-webflow-addon/references/script-tag-handoff.md) so the user can
+repeat the test without guessing commands, URLs, attributes, or Webflow placement.
 
 ## Official sources
 

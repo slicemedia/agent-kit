@@ -22,3 +22,8 @@ Diagnose read-only first. A fix, custom-code change, or publication needs its ow
 7. Return evidence, the narrowest proposed fix, verification steps, and untested areas. Add an editor-facing handoff naming the controlling markup hook, component/CMS scope, project entry or remote setting, affected instances/pages, and unchanged publication state. Do not mutate remote state during diagnosis.
 
 Use [the diagnostic checklist](references/diagnostic-checklist.md) for DevTools setup and when the cause is not evident after the first pass. A clean inspection snapshot is not a behavior test, and the inspector's `refresh()` does not call the addon's lifecycle `refresh()`.
+
+When the user needs to reproduce a local test or an authorized fix changes a public entry, include
+[the script-tag handoff](../author-webflow-addon/references/script-tag-handoff.md): the start
+command, exact local tags and Webflow placement, required attributes, and verified CDN tags only
+when the current build is deployed. Keep diagnostic findings separate from changes actually made.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6
+
+### Patch Changes
+
+- Require copyable Webflow setup handoffs for addon authoring, edits, local testing, and deployment: actual start commands, local/HMR tags first, exact placement and attribute setup, and separate CDN tags verified against the current deployed build. Share one handoff reference across addon, slider, motion, debugging, and deployment workflows while preserving local-only testing and publication boundaries.
+
 ## 0.2.5
 
 ### Patch Changes
