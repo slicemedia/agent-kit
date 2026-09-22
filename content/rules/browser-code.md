@@ -2,7 +2,8 @@
 
 - Expose reusable behavior through typed addon metadata and lifecycle methods; keep ESM imports inert.
 - For DevKit versions with the inspection API, declare nested markup roles, conditions, counts, and value constraints in the shared definition consumed by DevTools, `explain`, and `catalog`. Use `context.resolveOptions(root)` for per-instance configuration, synchronous read-only `inspect` reports for runtime facts, and `initializeAddon(runtime, instance)` in the browser entry so failed startup remains inspectable. Keep unavailable diagnostics unverified.
-- Scope queries to an explicit root, support multiple instances, and use only documented `data-wft-*` hooks.
+- Give each new addon with markup hooks its own stable `data-wft-<addon>` root and `data-wft-<addon>-<role-or-option>` names, aligned with its neutral name. Inspect existing contracts before choosing a prefix. Avoid generic addon-owned hooks such as `data-wft-item` or `data-wft-speed`; document deliberate shared hooks and preserve existing contracts unless migration is requested.
+- Reuse the same attribute names across instances of one addon. Scope queries and delegated events to the owning root, excluding nested instances; a descendant query alone does not establish ownership. Keep per-instance settings on roots and per-item overrides on owned children.
 - Track and remove owned listeners, observers, timers, generated nodes, attributes, styles, and vendor instances.
 - Reconcile missing or delayed DOM, CMS mutations, breakpoint changes, reduced motion, keyboard use, and destroy/reinitialize cycles when relevant.
 - Prefer GSAP addons for custom animation requests, honoring the user's chosen approach first. Keep markup and base styling in Webflow, and let the animation addon own timelines, scroll coordination, responsive state, and cleanup. Simple CSS effects and straightforward Designer-owned Interactions remain suitable alternatives.
