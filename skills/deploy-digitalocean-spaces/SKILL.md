@@ -20,3 +20,11 @@ This is an optional remote-write workflow. Building or discussing a project is n
 7. Return uploaded/skipped/failed objects and CDN purge status; verify the public JS/CSS URLs and response headers. For a partial failure, inspect the receipt and current state before recovery. Reapplying the same unchanged, approved stable plan skips matching uploads and retries a failed purge; do not invent a new target, delete files, or change bytes under the old plan. Serialize writers to a prefix and report that multi-file deployment is not atomic.
 
 Read [deployment safety](references/deployment-safety.md) before apply.
+
+After a successful addon deployment, complete [the script-tag handoff](../author-webflow-addon/references/script-tag-handoff.md)
+with the verified public addon script and emitted stylesheet tags, exact Webflow placement and
+scope, required attributes/configuration, and instructions to remove matching local/HMR tags. Derive URLs from
+the deployment receipt, mode, and build manifest. Mark failed or unverified assets explicitly;
+an upload receipt alone does not prove current CDN delivery. Do not add duplicate shared vendor
+tags when the project integration already loads them. Providing tags does not authorize applying
+them to Webflow or publishing the site.
